@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title') - Publisher Dashboard</title>
+    <title>@yield('title', 'Publisher dashboard')</title>
     <link rel="stylesheet" href="{{ asset('css/publisher.css') }}">
     @yield('styles')
     <style>
-               body {
+        body {
             display: flex;
             height: 100vh;
             margin: 0;
@@ -152,7 +152,7 @@
     </div>
     <div class="content">
         <header>
-            <h1>Publisher Dashboard</h1>
+            <!-- <h1>Publisher Dashboard</h1> -->
         </header>
         <main>
             @yield('content')

@@ -41,7 +41,9 @@ Route::middleware(['auth', 'role:Advertiser'])->group(function(){
 
 Route::middleware(['auth', 'role:Publisher'])->group(function(){
     Route::get('/publisher/dashboard', [PublisherController::class, 'index'])->name('publisher.dashboard');
-    Route::post('/admin/posts/store', [PublisherController::class, 'storePosts'])->name('publisher.post.store');
+    Route::post('/admin/posts/store', [PublisherController::class, 'storePosts'])->name('publisher.posts.store');
+    Route::post('/publisher/posts/create', [PublisherController::class, 'create'])->name('publisher.posts.create');
+    
 });
 
 
@@ -50,7 +52,11 @@ Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 //Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/admin/categories/list', [AdminController::class, 'list'])->name('categories.list');
-Route::get('/publisher/posts/list', [PublisherController::class, 'list'])->name('posts.list'); 
+Route::get('/publisher/posts/list', [PublisherController::class, 'list'])->name('posts.list');
+Route::get('publisher/posts/create', [PublisherController::class, 'create'])->name('posts.create');
 Route::get('/admin/post/index', [AdminController::class, 'post'])->name('post.index');
+
+//route for category type::
+Route::get('/categories-by-type', [PublisherController::class, 'getCategoriesByType'])->name('categories-by-type');
 
 
