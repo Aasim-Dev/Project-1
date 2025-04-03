@@ -85,12 +85,11 @@ class PublisherController extends Controller
                         'da' => $request->da,
                         'sample_post' => $request->sample_post,
                         'country' => $request->country,               
-                        'normal_gp' =>  $request->normal_gp,
-                        'normal_li' => $request->normal_li,
-                        'other_gp' =>  $request->other_gp, 
-                        'other_li' => $request->other_li,
+                        'normal_gp' =>  $request->normalGpPrice,
+                        'normal_li' => $request->normalLiPrice,
+                        'other_gp' =>  $request->otherGpPrice, 
+                        'other_li' => $request->otherLiPrice,
                         'user_id' => auth()->user()->id,
-                        'category_id' => $request->category_id,
                         
                     ]);
                 }
@@ -98,5 +97,21 @@ class PublisherController extends Controller
         
         return redirect()->route('posts.list')->with('success', 'Post added successfully.');
 
+    }
+
+    public function destroy(Request $request)
+    {
+        $category = Post::findOrFail($request->id);
+        $category->delete();
+    
+        return response()->json(['success' => 'Category deleted successfully.']);
+    }
+    //I have created this function so that we can declare this variable into the blade file.
+    public function showCategories(){
+        $categories = Category::all();
+        $normalCategories = Category::where('type', 'normal')->get();
+        $otherCategories = Category::where('type', 'other')->get();
+
+        return view('publisher.posts.create', compact('categories', 'normalCategories', 'otherCategories'));
     }
 }

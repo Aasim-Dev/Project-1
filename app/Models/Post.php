@@ -21,7 +21,6 @@ class Post extends Model
         'other_gp',
         'other_li',
         'user_id',
-        'category_id'
     ];
     public function user(){
         return $this->belongsTo(User::class);

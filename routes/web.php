@@ -43,6 +43,7 @@ Route::middleware(['auth', 'role:Publisher'])->group(function(){
     Route::get('/publisher/dashboard', [PublisherController::class, 'index'])->name('publisher.dashboard');
     Route::post('/admin/posts/store', [PublisherController::class, 'storePosts'])->name('publisher.posts.store');
     Route::post('/publisher/posts/create', [PublisherController::class, 'create'])->name('publisher.posts.create');
+    Route::delete('/admin/posts/destroy', [PublisherController::class, 'destroy'])->name('publisher.posts.delete');
     
 });
 
@@ -59,4 +60,5 @@ Route::get('/admin/post/index', [AdminController::class, 'post'])->name('post.in
 //route for category type::
 Route::get('/categories-by-type', [PublisherController::class, 'getCategoriesByType'])->name('categories-by-type');
 
-
+//route for the categories to show dynamically.
+Route::get('/publisher/posts/create', [PublisherController::class, 'showCategories']);

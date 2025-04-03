@@ -320,7 +320,7 @@
                 //var row = $(this).closest("tr"); // Find the row to remove
 
                 if (confirm("Are you sure you want to delete this category?")) {
-                    $.post("{{ route('admin.category.delete') }}", {
+                    $.post("{{ route('publisher.posts.delete') }}", {
                         id: id,
                         _method: "DELETE",
                         _token: "{{ csrf_token() }}" // CSRF token for security

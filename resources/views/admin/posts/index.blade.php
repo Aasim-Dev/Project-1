@@ -158,20 +158,20 @@
                     <input type="hidden" id="id" name="id">
                     <label>Website Url:</label>
                     <input type="text" id="web" name="website_url" required><br>
-                    <label>Host Url:</label>
-                    <input type="text" id="host" name="host_url" required><br>
+                    <label></label>
+                    <input type="hidden" id="host" name="host_url" required>
                     <label>DA:</label>
                     <input type="number" id="da" name="da" required><br>
                     <label>Sample Post:</label>
                     <input type="text" id="sample" name="sample_post" required><br>
-                    <label>Country:</label>
+                    <!-- <label>Country:</label>
                     <input type="text" id="country" name="country" required><br>
                     <label>Normal:</label>
                     <select name="normal"><option value="guest"> Guest</option>
                     <option value="post"> Post</option></select><br>
                     <label>Other:</label>
                     <select name="other"><option value="guest"> Guest</option>
-                    <option value="post"> Post</option></select><br>
+                    <option value="post"> Post</option></select><br> -->
                     <button type="submit" id="submit">Submit</button>
                 </form>
         </div>
@@ -182,10 +182,12 @@
             <th>Website</th>
             <th>Host</th>
             <th>DA</th>
-            <th>Sample POst</th>
+            <th>Sample Post</th>
             <th>Country</th>
-            <th>Normal</th>
-            <th>Other</th>
+            <th>normal_gp</th>
+            <th>normal_li</th>
+            <th>other_gp</th>
+            <th>other_li</th>
             <th>Action</th>
         </tr>
         @foreach($posts as $post)
@@ -196,10 +198,12 @@
             <td>{{ $post->da }}</td>
             <td>{{ $post->sample_post }}</td>
             <td>{{ $post->country }}</td>
-            <td>{{ $post->normal }}</td>
-            <td>{{ $post->other }}</td>
+            <td>{{ $post->normal_gp }}</td>
+            <td>{{ $post->normal_li }}</td>
+            <td>{{ $post->other_gp }}</td>
+            <td>{{ $post->other_li }}</td>
             <td>
-                <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->name}}" data-host_url="{{$post->tag}}" data-da="{{$post->description}}" data-sample_post="{{$post->sample_post}}">Edit</button>
+                <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
                 <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
             </td>
         </tr>
@@ -221,23 +225,21 @@
             });
             $(".overlay").click(function(e){
                 if(e.target.classList.contains("overlay")){
-                    $(".overlay").fadeOut();
+                    $(".overlay").hide();
                 }
             });
             $(document).on('click', '.btn-edit', function(){
                 
 
                 var id=$(this).data("id");
-                var name=$(this).data("name");
-                var tag=$(this).data("tag");
-                var description=$(this).data("description");
-                var type=$(this).data("type");
+                var web=$(this).data("website_url");
+                var da=$(this).data("da");
+                var sample=$(this).data("sample_post");
 
                 $("#id").val(id);
-                $("#name").val(name);
-                $("#tag").val(tag);
-                $("#description").val(description);
-                $(".type").val(type);
+                $("#web").val(web);
+                $("#da").val(da);
+                $("#sample").val(sample);
                 
                 $(".overlay").fadeIn();
             });
