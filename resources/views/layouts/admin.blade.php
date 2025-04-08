@@ -54,7 +54,8 @@
         <h3 class="text-center">Admin Panel</h3>
         <a href="{{ route('admin.dashboard') }}">Dashboard</a>
         <a href="{{ route('categories.list') }}">Categories</a>
-        <a href="{{ route('post.index') }}">Post</a>
+        <a href="{{ route('post.index') }}">Website</a>
+        <a href="{{ route('order.list') }}">Orders</a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="">
             @csrf
             <button  id="logout" name="logout">Logout</button>
@@ -68,7 +69,7 @@
         <!-- Header -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <span class="navbar-brand">@yield('title')</span>
+                <span class="navbar-brand"><h1>@yield('title')</h1></span>
             </div>
         </nav>
 

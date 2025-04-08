@@ -15,6 +15,8 @@ class Post extends Model
         'host_url',
         'da',
         'sample_post',
+        'ahref_traffic',
+        'TaT',
         'country',
         'normal_gp',
         'normal_li',
@@ -28,4 +30,11 @@ class Post extends Model
     public function category(){
         return $this->belongsTo(Category::class);
     }
+    public function orders(){
+        return $this->hasMany(Order::class);
+    }
+    public function cart(){
+        return $this->hasMany(Cart::class);
+    }
+    
 }

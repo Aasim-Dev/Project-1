@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Post;
 use Illuminate\Support\Facades\DB;
 
@@ -112,6 +113,11 @@ class AdminController extends Controller
     public function post(){
         $posts = Post::all();
         return view('admin.posts.index', compact('posts'));
+    }
+
+    public function showOrders(){
+        $orders = Order::all();
+        return view('admin.orders.list', compact('orders'));
     }
 
 }

@@ -153,7 +153,7 @@
     <div class="overlay">
         <div class = "modal">
             <h2 id="modalTitle">Add your Posts</h2>
-                <form id="postForm" method="POST" action="{{route('publisher.posts.store')}}">
+                <form id="postForm" method="POST" action="{{route('publisher.website.store')}}">
                     @csrf
                     <input type="hidden" id="id" name="id">
                     <label>Website Url:</label>

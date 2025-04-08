@@ -1,6 +1,6 @@
 @extends('layouts.publisher')
 
-@section('title', 'Posts')
+@section('title', 'website')
 
 @section('styles')
     <style>
@@ -151,14 +151,14 @@
     </style>
 @endsection
 @section('content')
-    <h1>Here are Some Post</h1>
-    <a href="{{route('publisher.posts.create')}}">
+    <h1>Here are Some Websites</h1>
+    <a href="{{route('publisher.website.create')}}">
         <button >Add Post from Here</button>
     </a>
     <div class="overlay">
         <div class = "modal">
-            <h2 id="modalTitle">Add your Posts</h2>
-                <form id="postForm" method="POST" action="{{route('publisher.posts.store')}}">
+            <h2 id="modalTitle">Add your website</h2>
+                <form id="postForm" method="POST" action="{{route('publisher.website.store')}}">
                     @csrf
                     <input type="hidden" id="id" name="id">
                     <label>Website Url:</label>
@@ -227,38 +227,45 @@
                 </form>
         </div>
     </div>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Website</th>
-            <th>Host</th>
-            <th>DA</th>
-            <th>Sample Post</th>
-            <th>Country</th>
-            <th>normal_gp</th>
-            <th>normal_li</th>
-            <th>other_gp</th>
-            <th>other_li</th>
-            <th>Action</th>
-        </tr>
+    <table id="mytable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Website</th>
+                <th>Host</th>
+                <th>DA</th>
+                <th>Sample Post</th>
+                <th>AHREF Traffic</th>
+                <th>TaT</th>
+                <th>Country</th>
+                <th>normal_gp</th>
+                <th>normal_li</th>
+                <th>other_gp</th>
+                <th>other_li</th>
+                <th>Action</th>
+            </tr>
+        </thead>
         @foreach($posts as $post)
-        <tr>
-            <td>{{ $post->id }}</td>
-            <td>{{ $post->website_url }}</td>
-            <td>{{ $post->host_url }}</td>
-            <td>{{ $post->da }}</td>
-            <td>{{ $post->sample_post }}</td>
-            <td>{{ $post->country }}</td>
-            <td>{{ $post->normal_gp }}</td>
-            <td>{{ $post->normal_li }}</td>
-            <td>{{ $post->other_gp }}</td>
-            <td>{{ $post->other_li }}</td>
-            <td>
-                <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-host_url="{{$post->host_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
-                <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
-            </td>
-        </tr>
-        
+        <tbody>
+            <tr>
+                <td>{{ $post->id }}</td>
+                <td>{{ $post->website_url }}</td>
+                <td>{{ $post->host_url }}</td>
+                <td>{{ $post->da }}</td>
+                <td>{{ $post->sample_post }}</td>
+                <td>{{ $post->ahref_traffic }}</td>
+                <td>{{ $post->TaT }}</td>
+                <td>{{ $post->country }}</td>
+                <td>{{ $post->normal_gp }}</td>
+                <td>{{ $post->normal_li }}</td>
+                <td>{{ $post->other_gp }}</td>
+                <td>{{ $post->other_li }}</td>
+                <td>
+                    <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-host_url="{{$post->host_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
+                    <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
+                </td>
+            </tr>
+        </tbody>
         @endforeach
     </table>
 @endsection    
@@ -266,6 +273,7 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function(){
             // $("#web").on('input', function(){
@@ -275,7 +283,7 @@
             //     $("#host").val(hostname);
                 
             //     $.ajax({
-            //         url: "{{route('publisher.posts.store')}}",
+            //         url: "{{route('publisher.website.store')}}",
             //         type: "POST",
             //         data:{
             //             _token: "{{ csrf_token() }}",
@@ -286,7 +294,12 @@
             //         },
             //     });
             // });
-
+            $("#mytable").DataTable({
+                "paging": true,
+                "searching": true,
+                "filtering": true,
+                "info": true
+            });
             $("#addPost").click(function () {
                 //console.log("Add Category button clicked");
                 $("#postForm")[0].reset();
@@ -320,7 +333,7 @@
                 //var row = $(this).closest("tr"); // Find the row to remove
 
                 if (confirm("Are you sure you want to delete this category?")) {
-                    $.post("{{ route('publisher.posts.delete') }}", {
+                    $.post("{{ route('publisher.website.delete') }}", {
                         id: id,
                         _method: "DELETE",
                         _token: "{{ csrf_token() }}" // CSRF token for security

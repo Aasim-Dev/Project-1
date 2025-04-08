@@ -74,6 +74,14 @@
             color: #2c3e50;
         }
 
+        #logout-form{
+            color: red;
+            display: REM absolute;
+            padding: 0px 0px;
+            cursor: pointer;
+            font-size: 6px;
+        }
+
         .logout {
             background: #e74c3c;
             color: white;
@@ -142,7 +150,7 @@
         <h2>Publisher Panel</h2>
         <ul>
             <li><a href="{{ route('publisher.dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ route('posts.list') }}">Posts</a></li>
+            <li><a href="{{ route('website.list') }}">Websites</a></li>
             <li><form id="logout-form" action="{{ route('logout') }}" method="POST" style="">
                     @csrf
                     <button  id="logout" name="logout">Logout</button>

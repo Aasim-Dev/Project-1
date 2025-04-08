@@ -17,7 +17,11 @@ class PublisherController extends Controller
     }
     //for the create posts page
     public function create(){
-        return view('publisher.posts.create');
+        $categories = Category::all();
+        $normalCategories = Category::where('type', 'normal')->get();
+        $otherCategories = Category::where('type', 'other')->get();
+
+        return view('publisher.website.create', compact('categories', 'normalCategories', 'otherCategories'));
     }
     //for getting the category type from the category table
     public function getCategoriesByType(Request $request){
@@ -41,7 +45,7 @@ class PublisherController extends Controller
         }else{
             abort(403, 'Unauthorized Access');
         }   
-        return view('publisher.posts.list', compact('posts'));
+        return view('publisher.website.list', compact('posts'));
     }
     //For updating and storing post to the table 
     protected function storePosts(Request $request){
@@ -51,12 +55,14 @@ class PublisherController extends Controller
             //'host_url'=> ['string', 'required', 'max:255'],
             'da' => ['integer', 'required', 'min:1', 'max:100'],
             'sample_post' => ['string', 'required', 'max:255'],
+            'ahref_traffic' => ['integer'],
+            'TaT' => ['required', 'string', 'in:1 day,2 days,3 days,4 days,5 days,6 days,7 days,8 days,9 days,10 days,11 days,12 days,13 days,14 days,15 days'],
             'country' => ['string', 'required', 'min:4']
         ]);
-    
+        
+        
         //dd($request->all());
         $idExists = DB::table('posts')->where('id', $request->id)->exists();
-        //dd($idExists);
             if ($idExists) {
                 
                 DB::table('posts')
@@ -84,6 +90,8 @@ class PublisherController extends Controller
                         'host_url' => $url['host'] ?? null, 
                         'da' => $request->da,
                         'sample_post' => $request->sample_post,
+                        'ahref_traffic' => $request->ahref_traffic,
+                        'TaT' => $request->TaT,
                         'country' => $request->country,               
                         'normal_gp' =>  $request->normalGpPrice,
                         'normal_li' => $request->normalLiPrice,
@@ -95,7 +103,7 @@ class PublisherController extends Controller
                 }
             }
         
-        return redirect()->route('posts.list')->with('success', 'Post added successfully.');
+        return redirect()->route('website.list')->with('success', 'Post added successfully.');
 
     }
 
@@ -112,6 +120,6 @@ class PublisherController extends Controller
         $normalCategories = Category::where('type', 'normal')->get();
         $otherCategories = Category::where('type', 'other')->get();
 
-        return view('publisher.posts.create', compact('categories', 'normalCategories', 'otherCategories'));
+        return view('publisher.website.create', compact('categories', 'normalCategories', 'otherCategories'));
     }
 }
