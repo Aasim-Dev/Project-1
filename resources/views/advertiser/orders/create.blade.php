@@ -67,8 +67,8 @@
             <input type="hidden" name="publisher_id" value="{{ $cart->post->user_id }}">
             <input type="hidden" name="website_id" value="{{ $cart->website_id }}">
             <Label>Website Url:</Label>
-            <input type="hidden" name="purpose" value="{{ $cart->post->website_url}}">
-            <span ><strong>{{ $cart->post->website_url }}</strong></span><br>
+            <input type="hidden" name="purpose" value="{{ $cart->post->host_url}}">
+            <span ><strong>{{ $cart->post->host_url }}</strong></span><br>
             <Label>Price:</Label>
             <input type="hidden" name="price" value="{{(($cart->post->normal_gp ?? 0) + ($cart->post->normal_li ?? 0) + ($cart->post->other_gp ?? 0) + ($cart->post->other_li ?? 0)) * 1.3}}">
             <span name="price"><strong>Normal GP:{{ $cart->post->normal_gp }}</strong></span><br>

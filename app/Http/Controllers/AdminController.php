@@ -6,15 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
     public function index(){
-
-        
-        //dd($categories); //used for debuging because it was not fething it properly.
-        return view('admin.dashboard');
+        $categories = Category::all();
+        $websites = Post::all();
+        $orders = Order::all();
+        $users = User::where('user_type', '!=', 'Admin')->get();
+        return view('admin.dashboard', compact('categories', 'websites', 'orders', 'users'));
     }
     protected function storeCategory(Request $request){
             
@@ -120,4 +122,15 @@ class AdminController extends Controller
         return view('admin.orders.list', compact('orders'));
     }
 
+    public function updateRequest(Request $request){
+        $request->validate([
+            'id'=> ['required', 'exists:orders,id'],
+            'status' => ['required', 'string', 'in:approved,rejected']
+        ]);
+        $order = Order::findorFail($request->id);
+        $order->status = $request->status;
+        $order->save();
+
+        return response()->json(['message' => 'Order status updated successfully.']);
+    }
 }

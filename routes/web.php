@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function(){
     Route::post('/admin/category/store', [AdminController::class, 'storeCategory'])->name('admin.category.store');
     Route::post('/admin/post/store', [AdminController::class, 'post'])->name('admin.post.store');
     Route::delete('/admin/category/destroy', [AdminController::class, 'destroy'])->name('admin.category.delete');
+    Route::post('/admin/order/update-status', [AdminController::class, 'updateRequest'])->name('order.updateStatus');
 });
 
 Route::middleware(['auth', 'role:Advertiser'])->group(function(){
@@ -40,7 +41,7 @@ Route::middleware(['auth', 'role:Advertiser'])->group(function(){
     Route::post('/advertiser/orders/store', [AdvertiserController::class, 'storeOrder'])->name('order.store');
     Route::post('/cart/toggleCart', [AdvertiserController::class, 'toggleCart'])->name('cart.toggle');
     Route::get('/cart/count', [AdvertiserController::class, 'cartCount'])->name('cart.count');
-    
+    Route::post('/orders/cancel', [AdvertiserController::class, 'cancelOrder'])->name('orders.cancel'); 
 });
 
 Route::middleware(['auth', 'role:Publisher'])->group(function(){
@@ -59,7 +60,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 //AdminController Routes
 Route::get('/admin/categories/list', [AdminController::class, 'list'])->name('categories.list');
 Route::get('/admin/post/index', [AdminController::class, 'post'])->name('post.index');
-Route::get('/admin/orders/list', [AdminController::class, 'showOrders'])->name('order.list');
+Route::get('/admin/order/list', [AdminController::class, 'showOrders'])->name('order.list');
 
 //PublisherController Routes
 Route::get('/publisher/website/list', [PublisherController::class, 'list'])->name('website.list');

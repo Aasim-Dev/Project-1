@@ -3,152 +3,146 @@
 @section('title', 'website')
 
 @section('styles')
-    <style>
-        .hidden { display: none; } 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 20px;
+    }
 
-        /* Overlay and Modal Styling */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            margin: auto;
-        }
+    h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        .modal {
-            background: white;
-            padding: 4px;
-            border-radius: 4px;
-            width: 500px;
-            max-width: 90%;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            align-items: center;
-            justify-content:center;
-            margin:auto;
+    button {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 
-        }
+    button:hover {
+        background-color: #2980b9;
+    }
 
-        #modalTitle {
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+    a {
+        text-decoration: none;
+    }
 
-        /* Form Styling */
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 999;
+        justify-content: center;
+        align-items: center;
+    }
 
-        label {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
-        }
+    .modal {
+        background-color: white;
+        padding: 25px 30px;
+        border-radius: 10px;
+        width: 500px;
+        max-width: 95%;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        position: relative;
+    }
 
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 4px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+    .modal h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #333;
+    }
 
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
+    form label {
+        display: block;
+        margin: 12px 0 5px;
+        font-weight: 600;
+    }
 
-        button#submit {
-            background-color: #007bff;
-            color: white;
-            padding: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
+    form input[type="text"],
+    form input[type="number"],
+    form select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
 
-        button#submit:hover {
-            background-color: #0056b3;
-        }
+    form input[type="radio"] {
+        margin-right: 8px;
+    }
 
-        /* Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+    .hidden {
+        display: none;
+    }
 
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+    table#myTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 40px;
+        background: white;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
 
-        th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: bold;
-        }
+    #myTable th, #myTable td {
+        padding: 12px 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
 
-        tr:hover {
-            background-color: #f5f5f5;
-        }
+    #myTable thead {
+        background-color: #3498db;
+        color: white;
+    }
 
-        /* Buttons */
-        .btn-edit, .btn-delete {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
+    #myTable tr:hover {
+        background-color: #f1f1f1;
+    }
 
-        .btn-edit {
-            background-color: #28a745;
-            color: white;
-        }
+    .btn-edit,
+    .btn-delete {
+        padding: 6px 10px;
+        border-radius: 4px;
+        margin: 0 5px;
+        font-size: 0.9rem;
+    }
 
-        .btn-edit:hover {
-            background-color: #218838;
-        }
+    .btn-edit {
+        background-color: #27ae60;
+        color: white;
+    }
 
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-        }
+    .btn-edit:hover {
+        background-color: #1e8449;
+    }
 
-        .btn-delete:hover {
-            background-color: #c82333;
-        }
+    .btn-delete {
+        background-color: #e74c3c;
+        color: white;
+    }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .modal {
-                width: 50%;
-            }
-        }
-    </style>
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+
+    span[role="alert"] strong {
+        color: red;
+        font-size: 0.9rem;
+    }
+</style>
 @endsection
 @section('content')
     <h1>Here are Some Websites</h1>
@@ -227,12 +221,11 @@
                 </form>
         </div>
     </div>
-    <table id="mytable">
+    <table id="myTable">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Created At</th>
                 <th>Website</th>
-                <th>Host</th>
                 <th>DA</th>
                 <th>Sample Post</th>
                 <th>AHREF Traffic</th>
@@ -245,32 +238,32 @@
                 <th>Action</th>
             </tr>
         </thead>
-        @foreach($posts as $post)
         <tbody>
-            <tr>
-                <td>{{ $post->id }}</td>
-                <td>{{ $post->website_url }}</td>
-                <td>{{ $post->host_url }}</td>
-                <td>{{ $post->da }}</td>
-                <td>{{ $post->sample_post }}</td>
-                <td>{{ $post->ahref_traffic }}</td>
-                <td>{{ $post->TaT }}</td>
-                <td>{{ $post->country }}</td>
-                <td>{{ $post->normal_gp }}</td>
-                <td>{{ $post->normal_li }}</td>
-                <td>{{ $post->other_gp }}</td>
-                <td>{{ $post->other_li }}</td>
-                <td>
-                    <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-host_url="{{$post->host_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
-                    <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
-                </td>
-            </tr>
+            @foreach($posts as $post)    
+                <tr>
+                    <td>{{ $post->created_at }}</td>
+                    <td><a href="{{$post->website_url}}">{{ $post->host_url }}</a></td>
+                    <td>{{ $post->da }}</td>
+                    <td><a href="{{$post->website_url}}">{{ $post->sample_post }}</a></td>
+                    <td>{{ $post->ahref_traffic }}</td>
+                    <td>{{ $post->TaT }}</td>
+                    <td>{{ $post->country }}</td>
+                    <td>{{ ($post->normal_gp > 0) ? '$' . $post->normal_gp : '-' }}</td>
+                    <td>{{ ($post->normal_li > 0) ? '$' . $post->normal_li : '-' }}</td>
+                    <td>{{ ($post->other_gp > 0) ? '$' . $post->other_gp : '-' }}</td>
+                    <td>{{ ($post->other_li > 0) ? '$' . $post->other_li : '-' }}</td>
+                    <td>
+                        <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-host_url="{{$post->host_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
+                        <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
-        @endforeach
     </table>
 @endsection    
 
 @section('scripts')
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -294,11 +287,19 @@
             //         },
             //     });
             // });
-            $("#mytable").DataTable({
-                "paging": true,
-                "searching": true,
-                "filtering": true,
-                "info": true
+            $("#myTable").DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [ 2, 'desc' ],
+                lengthMenu: [25, 50],
+                pageLength: 25,
+                columnDefs:[
+                    {
+                        targets: -1,
+                        orderable: false
+                    }
+                ]
             });
             $("#addPost").click(function () {
                 //console.log("Add Category button clicked");

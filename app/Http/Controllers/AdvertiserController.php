@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use illuminate\Support\Facades\Auth;
+use DB;
 
 class AdvertiserController extends Controller
 {
@@ -60,7 +61,7 @@ class AdvertiserController extends Controller
             'website_id' => ['exists:posts,id' ],
             'purpose' => ['string', 'max:255'],
             'price' => ['numeric', 'min:0'],
-            'status' => ['string', 'in:pending,completed,cancelled'],           
+            'status' => ['string', 'in:pending,approved,rejected,cancelled'],           
         ]);
         
         $posts = Post::findOrFail($request->website_id);  // Assuming $id is the website_id
@@ -129,6 +130,17 @@ class AdvertiserController extends Controller
             ]);
             return response()->json(['status'=>'success', 'message' => 'Website Added To Cart Successfully']);
         }
+    }
+    public function cancelOrder(Request $request) {
+        $request->validate([
+            'id' => ['required', 'exists:orders,id'],
+            'status' => ['required', 'string', 'in:cancelled']
+        ]);
+    
+        $order = Order::findOrFail($request->id);
+        $order->status = $request->status;
+        $order->save();
+        return response()->json(['message' => 'Order Cancelled Successfully']);
     }
 }
 

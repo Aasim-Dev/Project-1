@@ -3,6 +3,7 @@
 @section('title', 'Orders-List')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
         #myTable {
             width: 100%;
@@ -38,9 +39,9 @@
         }
 
         /* Cancel Button Styling */
-        .cancel {
+        .approve {
             padding: 6px 12px;
-            background-color: #ff4d4d;
+            background-color:rgb(34, 179, 41);
             border: none;
             color: white;
             font-size: 14px;
@@ -49,8 +50,22 @@
             transition: background-color 0.3s ease;
         }
 
-        .cancel:hover {
-            background-color: #e60000;
+        .approve:hover {
+            background-color:rgb(38, 230, 0);
+        }
+        .reject {
+            padding: 6px 12px;
+            background-color:rgb(154, 55, 25);
+            border: none;
+            color: white;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .reject:hover {
+            background-color:rgba(197, 18, 18, 0.72);
         }
     </style>
 @endsection
@@ -62,14 +77,14 @@
     <table id="myTable">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Advertiser ID</th>
+                    <th>Created at</th>
+                    <!-- <th>Advertiser ID</th>
                     <th>Publisher ID</th>
-                    <th>Website ID</th>
+                    <th>Website ID</th> -->
                     <th>Website URL</th>
                     <th>Price</th>
                     <th>Status</th>
-                    <th>Created at</th>
+                    
                     <th>Order</th>
                     
                 </tr>
@@ -77,14 +92,14 @@
             <tbody>
                 @foreach($orders as $order)
                     <tr>
-                        <td>{{$order->id}}</td>
-                        <td>{{$order->advertiser_id}}</td>
-                        <td>{{$order->publisher_id}}</td>
-                        <td>{{$order->website_id}}</td>
-                        <td>{{$order->purpose}}</td>
-                        <td>{{$order->price}}</td>
-                        <td>{{$order->status}}</td>
                         <td>{{$order->created_at}}</td>
+                        <!-- <td>{{$order->advertiser_id}}</td>
+                        <td>{{$order->publisher_id}}</td>
+                        <td>{{$order->website_id}}</td> -->
+                        <td><a href="{{$order->purpose}}">{{$order->purpose}}</a></td>
+                        <td>{{($order->price > 0) ? '$' . $order->price : '-'}}</td>
+                        <td class="status">{{$order->status}}</td>
+                        
                         <td>
                             <button class="approve" data-id="{{$order->id}}">Approve</button>
                             <button class="reject" data-id="{{$order->id}}">Reject</button>
@@ -102,8 +117,58 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function(){
-            $("div").click(function(){
-                console.log("Hello, You have Arrived At Advertiser Dashboard.");
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $('.approve').click(function() {
+                let orderId = $(this).data('id');
+                updateStatus(orderId, 'approved');
+                //$(this).text('Approved');
+            });
+            $('tr').each(function(){
+                let statusText = $(this).find('td.status').text().trim().toLowerCase();
+                if(statusText === 'cancelled') {
+                    $(this).find('.approve, .reject').attr('disabled', true);
+                }
+            });
+            function updateStatus(orderId, status){
+                $.ajax({
+                    url: "{{ route('order.updateStatus') }}",
+                    type: 'POST',
+                    data: {
+                        id: orderId,
+                        status: status,
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseJSON.errors); 
+                    }
+                });
+            }
+            $(".reject").click(function(){
+                let orderId = $(this).data('id');
+                updateStatus(orderId, 'rejected');
+                //$(this).text('Rejected');
+            });
+            
+            $("#myTable").DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [ 2, 'desc' ],
+                lengthMenu: [25, 50],
+                pageLength: 25,
+                columnDefs:[
+                    {
+                        targets: -1,
+                        orderable: false
+                    }
+                ]
             });
         });
     </script>

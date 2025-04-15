@@ -3,6 +3,7 @@
 @section('title', 'Website-List')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
         .content {
             margin-left: 250px;
@@ -92,15 +93,11 @@
 @endsection
 
 @section('content')
-    <div>
-        He who is contented is rich. - Laozi
-    </div>
     <table id="myTable">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Created At</th>
                 <th>Website</th>
-                <th>Host</th>
                 <th>DA</th>
                 <th>Sample Post</th>
                 <th>Country</th>
@@ -111,26 +108,25 @@
                 <th>Action</th>
             </tr>
         </thead>
-        @foreach($websites as $website)
         <tbody>
-            <tr>
-                <td>{{ $website->id }}</td>
-                <td>{{ $website->website_url }}</td>
-                <td><a href="{{$website->website_url}}">{{ $website->host_url }}</a></td>
-                <td>{{ $website->da }}</td>
-                <td>{{ $website->sample_post }}</td>
-                <td>{{ $website->country }}</td>
-                <td>{{ $website->normal_gp ?? '-' }}</td>
-                <td>{{ $website->normal_li ?? '-' }}</td>
-                <td>{{ $website->other_gp ?? '-' }}</td>
-                <td>{{ $website->other_li ?? '-' }}</td>
-                <td>
-                    <button class="add-to-cart" data-id="{{$website->id}}">Add to Cart</button>
-                    <!-- <button class="btn-delete" data-id="{{ $website->id }}">Delete</button> -->
-                </td>
-            </tr>
+            @foreach($websites as $website)
+                <tr>
+                    <td>{{$website->created_at}}</td>
+                    <td><a href="{{$website->website_url}}">{{ $website->host_url }}</a></td>
+                    <td>{{ $website->da }}</td>
+                    <td><a href="{{$website->website_url}}">{{ $website->sample_post }}</a></td>
+                    <td>{{ $website->country }}</td>
+                    <td>{{ ($website->normal_gp > 0) ? '$' . $website->normal_gp : '-' }}</td>
+                    <td>{{ ($website->normal_li > 0) ? '$' . $website->normal_li : '-' }}</td>
+                    <td>{{ ($website->other_gp > 0) ? '$' . $website->other_gp : '-' }}</td>
+                    <td>{{ ($website->other_li > 0) ? '$' . $website->other_li : '-' }}</td>
+                    <td>
+                        <button class="add-to-cart" data-id="{{$website->id}}">Add to Cart</button>
+                        <!-- <button class="btn-delete" data-id="{{ $website->id }}">Delete</button> -->
+                    </td>
+                </tr>
+            @endforeach
         </tbody>
-        @endforeach
     </table>
 @endsection
 
@@ -146,6 +142,22 @@
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
+            });
+            $("#myTable").dataTable({
+                "paging": true,
+                "searching": true,
+                "filtering": true,
+                "info": true,
+                "ordering": true,
+                "order": [[ 0, "desc" ]],
+                "lengthMenu": [25, 50],
+                "pageLength": 25,
+                "columnDefs":[
+                    {
+                        targets: -1,
+                        orderable: false
+                    }
+                ]
             });
 
             // STEP 1: Load cart item IDs and update buttons
@@ -185,5 +197,6 @@
                 });
             }
         });
+
     </script>
 @endsection

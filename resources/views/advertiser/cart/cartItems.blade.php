@@ -3,6 +3,7 @@
 @section ('title', 'Cart Items')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <style>
         table {
             width: 100%;
@@ -66,9 +67,8 @@
         <table id="myTable">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Created At</th>
                     <th>Website URL</th>
-                    <th>Host</th>
                     <th>DA</th>
                     <th>Country</th>
                     <th>Prices</th>
@@ -78,24 +78,23 @@
             </thead>
             <tbody>
                 @foreach($cartItems as $item)
-                @if ($item->post)
+                @if ($item->post || $item->user)
                 
                     <tr>
-                        <td>{{ $item->post->id }}</td>
-                        <td>{{ $item->post->website_url }}</td>
-                        <td>{{ $item->post->host_url }}</td>
+                        <td>{{ $item->post->created_at }}</td>
+                        <td><a href="{{ $item->post->website_url }}">{{ $item->post->host_url }}</a></td>
                         <td>{{ $item->post->da }}</td>
                         <td>{{ $item->post->country }}</td>
-                        <td>NormalGP:{{ $item->post->normal_gp ?? '-' }}<br>        
-                            NormalLI:{{ $item->post->normal_li ?? '-' }}<br>        
-                            OtherGP:{{ $item->post->other_gp ?? '-' }}<br>       
-                            OtherLI:{{ $item->post->other_li ?? '-' }}
+                        <td>NormalGP: {{ ($item->post->normal_gp > 0) ? '$' . $item->post->normal_gp : ' -' }}<br>        
+                            NormalLI: {{ ($item->post->normal_li > 0) ? '$' . $item->post->normal_li : ' -' }}<br>        
+                            OtherGP: {{ ($item->post->other_gp > 0) ? '$' . $item->post->other_gp : ' -' }}<br>       
+                            OtherLI: {{ ($item->post->other_li > 0) ? '$' . $item->post->other_li : ' -' }}
                         </td>
                         <td>
-                            NormalGP:{{ $item->post->normal_gp *1.3}}<br>
-                            NormalLI:{{ $item->post->normal_li *1.3}}<br>
-                            OtherGP:{{ $item->post->other_gp *1.3}}<br>
-                            OtherLI:{{ $item->post->other_li *1.3}}
+                            NormalGP:{{ ($item->post->normal_gp *1.3 > 0) ? '$' . $item->post->normal_gp *1.3 : ' -'}}<br>
+                            NormalLI:{{ ($item->post->normal_li *1.3 > 0) ? '$' . $item->post->normal_li *1.3 : ' -'}}<br>
+                            OtherGP:{{ ($item->post->other_gp *1.3 > 0) ? '$' . $item->post->other_gp *1.3 : ' -'}}<br>
+                            OtherLI:{{ ($item->post->other_li *1.3 > 0) ? '$' . $item->post->other_li *1.3 : ' -'}}
                         </td>
                         <td>
                             <form method="POST" action="">
@@ -132,7 +131,7 @@
                 "order": [[ 0, "desc" ]],
                 "lengthMenu": [25, 50],
                 "pageLength": 25,
-            })
+            });
         });
     </script>
 @endsection

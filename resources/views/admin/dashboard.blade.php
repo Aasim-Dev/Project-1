@@ -2,65 +2,104 @@
 
 @section('title', 'Dashboard')
 
+@section('styles')
+    <style>
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns */
+            gap: 1.5rem; /* space between boxes */
+            padding: 2rem;
+            max-width: 1200px;
+            margin: auto;
+        }
 
-    <!-- <div class="container">
-        <h2>Welcome to the Admin Dashboard</h2>
-        <p>Manage your website content here.</p>
-    </div> -->
+        .dashboard-box {
+            background-color:rgb(193, 186, 186);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
 
+        .dashboard-box:hover {
+            transform: translateY(-4px);
+        }
 
+        .dashboard-box h2 {
+            color: #34495e;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
 
+        .dashboard-box ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
 
+        .dashboard-box li {
+            background-color: #f2f6fa;
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
 
-<!-- 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <style> -->
+        @media (max-width: 992px) {
+            .dashboard-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
 
-    <!-- 
-    
+        @media (max-width: 600px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+@endsection
 
-</head>
-<body>  -->
 @section('content')
-    <h1>Welcome to Admin DashBoard</h1>
-    <!-- <button id="addCategory">Add Categories from Here</button>
-    <div class="overlay">
-        <div class="modal">
-            <h2 id="modalTitle">Add Categories</h2>
-            <form method="POST" id="catForm" action="{{ route('admin.category.store') }}">
-                @csrf
-                <input type="hidden" id="id" name="id" class="id" value="">
-                <label>Name:</label>
-                <input type="text" id="name" name="name" required>
-                <label>Tag:</label>
-                <input type="text" id="tag" name="tag" required>
-                <label>Description:</label>
-                <input type="text" id="description" name="description" required>
-                <label>Type:</label>
-                <select name="type"> <option value="normal"> Normal</option>
-                <option value="other"> Other</option> </select>
-                <button id="submit" type="submit">Submit</button>
-            </form>
+    <h2>Welcome to Admin DashBoard</h2> 
+    <div class="dashboard-container">   
+        <div class ="dashboard-box">
+            <a href="{{route('categories.list')}}"><h2>Categories ({{$categories->count()}}): </h2>
+                <!-- <ul>
+                    @foreach($categories as $category)
+                        <li>Other Category:{{ $category->type == 'other' && $category->type !== ''}}</li>
+                    @endforeach
+                </ul> -->
+            </a>
+        </div>
+        <div class ="dashboard-box">
+            <a href="{{route('post.index')}}"><h2>Websites ({{$websites->count()}}): </h2>
+                <!-- <ul>
+                    @foreach($websites as $website)
+                        <li>{{ $website->website_url }}</li>
+                    @endforeach
+                </ul> -->
+            </a>
+        </div>
+        <div class ="dashboard-box">
+            <a href="{{route('order.list')}}"><h2>Orders ({{$orders->count()}}):</h2>
+            <!-- <ul>
+                @foreach($orders as $order)
+                    <li>{{ $order->purpose }}</li>
+                @endforeach 
+            </ul> -->
+            </a>
+        </div>
+        <div class ="dashboard-box">
+            <h2>Users ({{$users->count()}}):</h2>
+            <!-- <ul>
+                @foreach($users as $user)
+                    <li>{{ $user->name }}</li>
+                @endforeach
+            </ul> -->
         </div>
     </div>
-
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Tag</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Action<th>
-        </tr>
-           
-        <
-    </table> -->
 @endsection
 @section('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -109,8 +109,8 @@ class PublisherController extends Controller
 
     public function destroy(Request $request)
     {
-        $category = Post::findOrFail($request->id);
-        $category->delete();
+        $post = Post::findOrFail($request->id);
+        $post->delete();
     
         return response()->json(['success' => 'Category deleted successfully.']);
     }

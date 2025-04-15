@@ -1,8 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Posts')
+@section('title', 'Websites')
 
 @section('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
         /* Overlay and Modal Styling */
         .overlay {
@@ -149,10 +150,10 @@
     </style>
 @endsection
 @section('content')
-    <h1>Here are Some Post</h1>
+    <h1>Here are Some Websites</h1>
     <div class="overlay">
         <div class = "modal">
-            <h2 id="modalTitle">Add your Posts</h2>
+            <h2 id="modalTitle">Add your Websites</h2>
                 <form id="postForm" method="POST" action="{{route('publisher.website.store')}}">
                     @csrf
                     <input type="hidden" id="id" name="id">
@@ -176,47 +177,66 @@
                 </form>
         </div>
     </div>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Website</th>
-            <th>Host</th>
-            <th>DA</th>
-            <th>Sample Post</th>
-            <th>Country</th>
-            <th>normal_gp</th>
-            <th>normal_li</th>
-            <th>other_gp</th>
-            <th>other_li</th>
-            <th>Action</th>
-        </tr>
-        @foreach($posts as $post)
-        <tr>
-            <td>{{ $post->id }}</td>
-            <td>{{ $post->website_url }}</td>
-            <td>{{ $post->host_url }}</td>
-            <td>{{ $post->da }}</td>
-            <td>{{ $post->sample_post }}</td>
-            <td>{{ $post->country }}</td>
-            <td>{{ $post->normal_gp }}</td>
-            <td>{{ $post->normal_li }}</td>
-            <td>{{ $post->other_gp }}</td>
-            <td>{{ $post->other_li }}</td>
-            <td>
-                <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
-                <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
-            </td>
-        </tr>
-        
-        @endforeach
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th>Created At</th>
+                <th>Website</th>
+                <th>DA</th>
+                <th>Sample Post</th>
+                <th>Country</th>
+                <th>normal_gp</th>
+                <th>normal_li</th>
+                <th>other_gp</th>
+                <th>other_li</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($posts as $post)
+                <tr>
+                    <td>{{ $post->created_at }}</td>
+                    <td><a href="{{$post->website_url}}">{{ $post->host_url }}</a></td>
+                    <td>{{ $post->da }}</td>
+                    <td><a href="{{$post->website_url}}">{{ $post->sample_post }}</a></td>
+                    <td>{{ $post->country }}</td>
+                    <td>{{ ($post->normal_gp > 0) ? '$' . $post->normal_gp : '-' }}</td>
+                    <td>{{ ($post->normal_li > 0) ? '$' . $post->normal_li : '-' }}</td>
+                    <td>{{ ($post->other_gp > 0) ? '$' . $post->other_gp : '-' }}</td>
+                    <td>{{ ($post->other_li > 0) ? '$' . $post->other_li : '-' }}</td>
+                    <td>
+                        <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
+                        <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
+                    </td>
+                </tr>       
+            @endforeach
+        </tbody>
     </table>
 @endsection    
 
 @section('scripts')
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
+        
         $(document).ready(function(){
+            $("#myTable").DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [ 2, 'desc' ],
+                sort: [2, 'desc'],
+                lengthMenu: [25, 50],
+                pageLength: 25,
+                columnDefs:[
+                    {
+                        targets: -1,
+                        orderable: false
+                    }
+                ]
+            });
             $("#addPost").click(function () {
                 //console.log("Add Category button clicked");
                 $("#postForm")[0].reset();
