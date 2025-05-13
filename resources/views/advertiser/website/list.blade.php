@@ -4,92 +4,72 @@
 
 @section('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <style>
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-            background-color: #f4f6f8;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        /* Header with Cart */
-        /* .header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            background-color: #fff;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
+    .content {
+        padding: 30px 20px;
+        background-color: #f4f6f8;
+        min-height: 100vh;
+        width: 99%;
+    }
 
-        
-        .cart-button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 15px;
-            transition: background-color 0.3s ease;
-        }
+    /* Optional quote or intro text */
+    .content > div:first-of-type {
+        font-size: 16px;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-style: italic;
+    }
 
-        .cart-button:hover {
-            background-color: #2980b9;
-        } */
+    /* Table styling */
+    #myTable {
+        width: 99%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
 
-        /* Quote text */
-        .content > div:first-of-type {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
+    #myTable thead {
+        background-color: #2c3e50;
+        color: #fff;
+    }
 
-        /* Table styling */
-        #myTable {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
+    #myTable th,
+    #myTable td {
+        padding: 14px 18px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-        #myTable thead {
-            background-color: #2c3e50;
-            color: white;
-        }
+    #myTable tbody tr:hover {
+        background-color: #f9f9f9;
+    }
 
-        #myTable th, #myTable td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+    /* Add to Cart button */
+    #myTable button {
+        background-color: #2ecc71;
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
 
-        #myTable tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        /* Add to Cart button */
-        #myTable button {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-        }
-
-        #myTable button:hover {
-            background-color: #27ae60;
-        }
-    </style>
+    #myTable button:hover {
+        background-color: #27ae60;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -101,10 +81,10 @@
                 <th>DA</th>
                 <th>Sample Post</th>
                 <th>Country</th>
-                <th>normal_gp</th>
-                <th>normal_li</th>
-                <th>other_gp</th>
-                <th>other_li</th>
+                <th>normal</th>
+                <th>other</th>
+                <th>guest_post_price</th>
+                <th>linkinsertion_price</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -116,10 +96,10 @@
                     <td>{{ $website->da }}</td>
                     <td><a href="{{$website->website_url}}">{{ $website->sample_post }}</a></td>
                     <td>{{ $website->country }}</td>
-                    <td>{{ ($website->normal_gp > 0) ? '$' . $website->normal_gp : '-' }}</td>
-                    <td>{{ ($website->normal_li > 0) ? '$' . $website->normal_li : '-' }}</td>
-                    <td>{{ ($website->other_gp > 0) ? '$' . $website->other_gp : '-' }}</td>
-                    <td>{{ ($website->other_li > 0) ? '$' . $website->other_li : '-' }}</td>
+                    <td>{{ $website->normal }}</td>
+                    <td>{{ $website->other }}</td>
+                    <td>{{ ($website->guest_post_price > 0) ? '$' . $website->guest_post_price : '-' }}</td>
+                    <td>{{ ($website->linkinsertion_price > 0) ? '$' . $website->linkinsertion_price : '-' }}</td>
                     <td>
                         <button class="add-to-cart" data-id="{{$website->id}}">Add to Cart</button>
                         <!-- <button class="btn-delete" data-id="{{ $website->id }}">Delete</button> -->
@@ -179,7 +159,7 @@
             $('.add-to-cart').click(function () {
                 const button = $(this);
                 const websiteId = button.data('id').toString();
-
+                //alert('add');
                 $.post('{{ route("cart.toggle") }}', { website_id: websiteId }, function (response) {
                     if (response.status === 'success') {
                         button.text("Remove from Cart").css("background-color", "#e74c3c");

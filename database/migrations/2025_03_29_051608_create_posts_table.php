@@ -17,9 +17,17 @@ return new class extends Migration
             $table->string('host_url');
             $table->integer('da');
             $table->string('sample_post');
+            $table->integer('ahref_traffic')->nullable();
+            $table->string('tat')->nullable();
             $table->string('country');
-            $table->string('normal');
-            $table->string('other');
+            $table->string('normal')->nullable();
+            $table->string('other')->nullable();
+            $table->decimal('guest_post_price', 10, 2 );
+            $table->decimal('linkinsertion_price', 10, 2 );
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

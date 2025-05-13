@@ -147,7 +147,7 @@
 @section('content')
     <h1>Here are Some Websites</h1>
     <a href="{{route('publisher.website.create')}}">
-        <button >Add Post from Here</button>
+        <button >Add Websites from Here</button>
     </a>
     <div class="overlay">
         <div class = "modal">
@@ -231,10 +231,8 @@
                 <th>AHREF Traffic</th>
                 <th>TaT</th>
                 <th>Country</th>
-                <th>normal_gp</th>
-                <th>normal_li</th>
-                <th>other_gp</th>
-                <th>other_li</th>
+                <th>Guest Post Price</th>
+                <th>Link Insertion Price</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -246,12 +244,10 @@
                     <td>{{ $post->da }}</td>
                     <td><a href="{{$post->website_url}}">{{ $post->sample_post }}</a></td>
                     <td>{{ $post->ahref_traffic }}</td>
-                    <td>{{ $post->TaT }}</td>
+                    <td>{{ $post->tat }}</td>
                     <td>{{ $post->country }}</td>
-                    <td>{{ ($post->normal_gp > 0) ? '$' . $post->normal_gp : '-' }}</td>
-                    <td>{{ ($post->normal_li > 0) ? '$' . $post->normal_li : '-' }}</td>
-                    <td>{{ ($post->other_gp > 0) ? '$' . $post->other_gp : '-' }}</td>
-                    <td>{{ ($post->other_li > 0) ? '$' . $post->other_li : '-' }}</td>
+                    <td>{{ ($post->guest_post_price > 0) ? '$' . $post->guest_post_price : '-' }}</td>
+                    <td>{{ ($post->linkinsertion_price > 0) ? '$' . $post->linkinsertion_price : '-' }}</td>
                     <td>
                         <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-host_url="{{$post->host_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
                         <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>

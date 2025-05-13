@@ -67,10 +67,6 @@
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6 offset-md-3 d-flex align-items-center gap-3">
-                                <input type="radio" id="admin" name="user_type" value="Admin" class="form-check-input">
-                                <label for="html" class="form-check-label">{{ __('Admin') }}</label>
-                            </div>
                             <div class="col-md-6 offset-md-3 d-flex align-items-center gap-3 mt-2">
                                 <input type="radio" id="user" name="user_type" value="Advertiser" class="form-check-input">
                                 <label for="html" class="form-check-label">{{ __('Advertiser') }}</label>

@@ -150,7 +150,7 @@
                     @enderror
                     <div class="container-wrapper">
                         <label>Normal Categories:</label>
-                        <select class="category-select" name="cate" multiple>
+                        <select class="category-select" name="catenormal" multiple>
                             @foreach ($normalCategories as $category)
                                 <option value="{{ $category->name }}">{{ $category->name }}</option>
                             @endforeach
@@ -212,7 +212,7 @@
             }, "Please Enter Atleast One Price Field");
             $("#postForm").validate({
                 rules: {
-                    cate: {
+                    catenormal: {
                         categoryRequired: true,
                     },
                     othercate: {
@@ -262,7 +262,7 @@
                     }
                 },
                 errorPlacement: function (error, element) {
-                    if (element.attr("name") === "cate" || element.attr("name") === "othercate") {
+                    if (element.attr("name") === "catenormal" || element.attr("name") === "othercate") {
                         if (element.next(".validation-error").length === 0) {
                             element.after('<div class="validation-error text-danger mt-1"></div>');
                         }

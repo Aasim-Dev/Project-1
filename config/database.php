@@ -41,6 +41,7 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'timezone' => '+05:30',
         ],
 
         'mysql' => [
@@ -55,6 +56,7 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
+            'timezone' => '+05:30',
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,

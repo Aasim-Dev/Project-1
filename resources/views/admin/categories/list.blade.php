@@ -106,7 +106,6 @@
 @endsection
 
 @section('content')
-
 <h1>Here are some Categories</h1>
     <button id="addCategory">Add Categories from Here</button>
     <div class="overlay">

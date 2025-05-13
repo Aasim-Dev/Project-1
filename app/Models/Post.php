@@ -16,12 +16,12 @@ class Post extends Model
         'da',
         'sample_post',
         'ahref_traffic',
-        'TaT',
+        'tat',
         'country',
-        'normal_gp',
-        'normal_li',
-        'other_gp',
-        'other_li',
+        'normal',
+        'normal',
+        'guest_post_price',
+        'linkinsertion_price',
         'user_id',
     ];
     public function user(){

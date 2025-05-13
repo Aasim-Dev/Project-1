@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Order;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
@@ -15,6 +17,29 @@ class PublisherController extends Controller
         
         return view('publisher.dashboard');
     }
+
+    //for Showing Orders to the Publisher
+    public function showOrders(Request $request){
+        $user = Auth::user();
+        $orders = Order::where('publisher_id', $user->id)->get();
+        if($user){
+            return view('publisher.order.list', compact('orders'));
+        }
+    }
+
+    //for updating orderStatus
+    public function updateRequest(Request $request){
+        $request->validate([
+            'id'=> ['required', 'exists:orders,id'],
+            'status' => ['required', 'string', 'in:in_progress,rejected']
+        ]);
+        $order = Order::findorFail($request->id);
+        $order->status = $request->status;
+        $order->save();
+
+        return response()->json(['message' => 'Order status updated successfully.']);
+    }
+
     //for the create posts page
     public function create(){
         $categories = Category::all();
@@ -73,10 +98,9 @@ class PublisherController extends Controller
                         'da' => $request->da,
                         'sample_post' => $request->sample_post,
                         'country' => $request->country,               
-                        'normal_gp' =>  $request->normal_gp,   
-                        'normal_li' => $request->normal_li,
-                        'other_gp' =>  $request->other_gp,   
-                        'other_li' => $request->other_li,
+                        'type' => $request->catenormal || $request->othercate,
+                        'guest_post_price' => $request->normalGpPrice || $request->otherGpPrice,
+                        'linkinsertion_price' =>$request->normalLiPrice || $request->otherLiPrice,
                         'updated_at' => now(), 
                     ]);
             } else { 
@@ -84,19 +108,29 @@ class PublisherController extends Controller
                     $user = optional(auth()->user())->email;
                     $url = $request->website_url;
                     $url = parse_url($request->website_url);
-
+                    //dd($request->catenormal);
+                    $cate = '';
+                    if($request->catenormal){
+                        $cate = 'normal';
+                    }
+                    if($request->othercate){
+                        $cate = 'other';
+                    }
+                    //dd($cate);
+                    $val1 = $request->normalGpPrice ?? $request->otherGpPrice;
+                    $val2 = $request->normalLiPrice ?? $request->otherLiPrice;
                     Post::create([
                         'website_url' => $request->website_url,                   
                         'host_url' => $url['host'] ?? null, 
                         'da' => $request->da,
                         'sample_post' => $request->sample_post,
                         'ahref_traffic' => $request->ahref_traffic,
-                        'TaT' => $request->TaT,
+                        'tat' => $request->TaT,
                         'country' => $request->country,               
-                        'normal_gp' =>  $request->normalGpPrice,
-                        'normal_li' => $request->normalLiPrice,
-                        'other_gp' =>  $request->otherGpPrice, 
-                        'other_li' => $request->otherLiPrice,
+                        'normal' => $cate,
+                        'other' => $cate,
+                        'guest_post_price' => $val1,
+                        'linkinsertion_price' => $val2,
                         'user_id' => auth()->user()->id,
                         
                     ]);

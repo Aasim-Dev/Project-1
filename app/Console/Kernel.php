@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('emails:send')->everyMinute();
+        $schedule->command('app:send-reports')->everyMinute()->runInBackground();
+        $schedule->command('app:order-reminder-mail')->weekdays()->everyminute()->timezone('Asia/Kolkata');
+        $schedule->job(new \App\Jobs\EmailReminderJob)->everyMinute();
     }
 
     /**

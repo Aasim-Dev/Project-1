@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('publisher_id');
-            $table->foreign('publisher_id')->references('user_id')->on('posts')->onDelete('cascade');
-        });
+        // Schema::table('orders', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('publisher_id');
+        //     $table->foreign('publisher_id')->references('user_id')->on('posts')->onDelete('cascade');
+        // });
     }
 
     /**
@@ -22,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropForeign(['publisher_id']);
-            $table->foreign('publisher_id')->references('id')->on('users')->onDelete('cascade');
-        });
+        // Schema::table('orders', function (Blueprint $table) {
+        //     $table->dropForeign(['publisher_id']);
+        //     $table->foreign('publisher_id')->references('id')->on('users')->onDelete('cascade');
+        // });
     }
 };

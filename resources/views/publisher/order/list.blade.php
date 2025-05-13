@@ -1,4 +1,4 @@
-@extends('layouts.advertiser')
+@extends('layouts.publisher')
 
 @section('title', 'Orders-List')
 
@@ -68,7 +68,7 @@
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 shadow">
-        <div class="modal-header">   
+        <div class="modal-header">
             <h5 class="modal-title" id="chatModalLabel">Order ID: #</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -102,8 +102,8 @@
                     <th>Language</th>
                     <th>Type</th>
                     <th>delivery Time</th>
-                    <th>Status</th>
                     <th>Action</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -120,18 +120,16 @@
                             <td>Content + Guest Post</td>
                         @elseif( $order->type == 'link_insertion' )
                             <td>Link Insertion</td>
-                        @endif  
+                        @endif    
                         <td>{{$order->tat}}</td>
-                        <td>{{$order->status}}</td>  
+                        <td>
+                            <button class="approve" data-id="{{$order->id}}">Approve</button>
+                            <button class="reject" data-id="{{$order->id}}">Reject</button>
+                        </td>  
                         <td><button class="chat" id="chat-btn" data-id="{{$order->id}}">Chat</button></td>
                     </tr>
                 @endforeach
             </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="8" style="text-align: center; color: red;">You have 24 Hours of Time to complete the order.</td>
-                </tr>
-            </tfoot>
         </table>
 @endsection
 
@@ -148,6 +146,33 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
+            });
+            $('.approve').click(function() {
+                let orderId = $(this).data('id');
+                updateStatus(orderId, 'in_progress');
+                $(this).text('Approved');
+            });
+            function updateStatus(orderId, status){
+                $.ajax({
+                    url: "{{ route('order.update') }}",
+                    type: 'POST',
+                    data: {
+                        id: orderId,
+                        status: status,
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseJSON.errors); 
+                    }
+                });
+            }
+            $(".reject").click(function(){
+                let orderId = $(this).data('id');
+                updateStatus(orderId, 'rejected');
+                //$(this).text('Rejected');
             });
             $("#myTable").dataTable({
                 "paging": true,

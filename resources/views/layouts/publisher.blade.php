@@ -151,6 +151,7 @@
         <ul>
             <li><a href="{{ route('publisher.dashboard') }}">Dashboard</a></li>
             <li><a href="{{ route('website.list') }}">Websites</a></li>
+            <li><a href="{{route('orders')}}">Orders</a></li>
             <li><form id="logout-form" action="{{ route('logout') }}" method="POST" style="">
                     @csrf
                     <button  id="logout" name="logout">Logout</button>

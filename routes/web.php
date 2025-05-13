@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdvertiserController;
 use App\Http\Controllers\PublisherController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +37,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function(){
     Route::post('/admin/order/update-status', [AdminController::class, 'updateRequest'])->name('order.updateStatus');
 });
 
-Route::middleware(['auth', 'role:Advertiser'])->group(function(){
+Route::middleware(['auth', 'role:Advertiser', 'verified'])->group(function(){
     Route::get('/advertiser/dashboard', [AdvertiserController::class, 'index'])->name('advertiser.dashboard');
     Route::post('/advertiser/orders/store', [AdvertiserController::class, 'storeOrder'])->name('order.store');
     Route::post('/cart/toggleCart', [AdvertiserController::class, 'toggleCart'])->name('cart.toggle');
@@ -44,15 +45,17 @@ Route::middleware(['auth', 'role:Advertiser'])->group(function(){
     Route::post('/orders/cancel', [AdvertiserController::class, 'cancelOrder'])->name('orders.cancel'); 
 });
 
-Route::middleware(['auth', 'role:Publisher'])->group(function(){
+Route::middleware(['auth', 'role:Publisher', 'verified'])->group(function(){
     Route::get('/publisher/dashboard', [PublisherController::class, 'index'])->name('publisher.dashboard');
     Route::post('/publisher/website/store', [PublisherController::class, 'storePosts'])->name('publisher.website.store');
     Route::post('/publisher/website/create', [PublisherController::class, 'create'])->name('publisher.website.create');
     Route::delete('/publisher/website/destroy', [PublisherController::class, 'destroy'])->name('publisher.website.delete');
+    Route::get('/publisher/orders', [PublisherController::class, 'showOrders'])->name('orders');
+    Route::post('/publisher/order/update', [PublisherController::class, 'updateRequest'])->name('order.update');
 });
 
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 //Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -76,6 +79,11 @@ Route::get('/advertiser/website/list', [AdvertiserController::class, 'showWebsit
 //route for category type::
 Route::get('/categories-by-type', [PublisherController::class, 'getCategoriesByType'])->name('categories-by-type');
 Route::get('/cart-websites', [AdvertiserController::class, 'getCartWebsites'])->name('website.cart');
+
+//route for CartController
+Route::post('/cart/update', [CartController::class, 'storeProvideContent'])->name('cart.content');
+Route::post('/cart/linkInsertion', [CartController::class, 'linkInsertion'])->name('cart.link');
+Route::post('/cart/hire', [CartController::class, 'hireContent'])->name('cart.hire');
 
 //route for the categories to show dynamically.
 //Route::get('/publisher/website/create', [PublisherController::class, 'showCategories']);

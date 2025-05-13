@@ -63,8 +63,10 @@ class AdminController extends Controller
 
     public function list(){
         //use below variable for declaration because if not declared here than the categories.list file will not be run.
-        $categories = Category::all();   
-        return view('admin.categories.list', compact('categories'));
+        $categories = Category::all();
+        $cate = Category::find(1);
+        //dd($cate);   
+        return view('admin.categories.list', compact('categories', 'cate'));
     }
 
     protected function posts(Request $request){
