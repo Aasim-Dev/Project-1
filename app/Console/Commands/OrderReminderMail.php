@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\OrderRemider;
 use App\Helper\MailHelper;
 use App\Models\Post;
+use App\Jobs\EmailReminderJob;
 
 class OrderReminderMail extends Command
 {
@@ -81,7 +82,12 @@ class OrderReminderMail extends Command
             }
         }
         
-        
+        // $orderReminder = dispatch(new EmailReminderJob());
+        // if ($orderReminder) {
+        //     $this->info('Order reminder email sent successfully.');
+        // } else {
+        //     $this->error('Failed to send order reminder email.');
+        // }
         
     }
 }

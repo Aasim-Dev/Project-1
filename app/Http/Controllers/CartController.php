@@ -71,9 +71,9 @@ class CartController extends Controller
             
         ];
         
-        $cart = Cart::where('advertiser_id', $request->user()->id)->where('website_id', $request->website_id)->first();
+        $cart = Cart::where('advertiser_id', $user->id)->where('website_id', $request->website_id)->first();
         if($cart){
-            Cart::where('advertiser_id', $request->user()->id)
+            Cart::where('advertiser_id', $user->id)
                 ->where('website_id', $request->website_id)
                 ->update($data);
             return response()->json([
@@ -111,9 +111,9 @@ class CartController extends Controller
             'website_id' => $request->website_id,
         ];
         
-        $cart = Cart::where('user_id', $request->user()->id)->where('website_id', $request->website_id)->first();
+        $cart = Cart::where('advertiser_id', $user->id)->where('website_id', $request->website_id)->first();
         if($cart){
-            Cart::where('user_id', $request->user()->id)
+            Cart::where('advertiser_id', $user->id)
                 ->where('website_id', $request->website_id)
                 ->update($data);
             return response()->json([

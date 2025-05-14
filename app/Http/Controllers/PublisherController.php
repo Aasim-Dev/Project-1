@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
+use App\Models\Message;
 
 
 class PublisherController extends Controller
@@ -22,8 +23,9 @@ class PublisherController extends Controller
     public function showOrders(Request $request){
         $user = Auth::user();
         $orders = Order::where('publisher_id', $user->id)->get();
+        $messages = Message::where('receiver_id', $user->id)->get();
         if($user){
-            return view('publisher.order.list', compact('orders'));
+            return view('publisher.order.list', compact('orders', 'messages'));
         }
     }
 
@@ -74,21 +76,22 @@ class PublisherController extends Controller
     }
     //For updating and storing post to the table 
     protected function storePosts(Request $request){
-            
-        $request->validate([
-            'website_url' => ['string', 'required', 'max:255', 'url'],
-            //'host_url'=> ['string', 'required', 'max:255'],
-            'da' => ['integer', 'required', 'min:1', 'max:100'],
-            'sample_post' => ['string', 'required', 'max:255'],
-            'ahref_traffic' => ['integer'],
-            'TaT' => ['required', 'string', 'in:1 day,2 days,3 days,4 days,5 days,6 days,7 days,8 days,9 days,10 days,11 days,12 days,13 days,14 days,15 days'],
-            'country' => ['string', 'required', 'min:4']
-        ]);
+        
+        // $request->validate([
+        //     'website_url' => ['string', 'required', 'max:255', 'url'],
+        //     //'host_url'=> ['string', 'required', 'max:255'],
+        //     'da' => ['integer', 'required', 'min:1', 'max:100'],
+        //     'sample_post' => ['string', 'required', 'max:255'],
+        //     'ahref_traffic' => ['integer'],
+        //     'TaT' => ['required', 'string', 'in:1 day,2 days,3 days,4 days,5 days,6 days,7 days,8 days,9 days,10 days,11 days,12 days,13 days,14 days,15 days'],
+        //     'country' => ['string', 'required', 'min:4']
+        // ]);
         
         
         //dd($request->all());
+        //dd($request->catenormal);
         $idExists = DB::table('posts')->where('id', $request->id)->exists();
-            if ($idExists) {
+        if ($idExists) {
                 
                 DB::table('posts')
                     ->where('id', $request->id)
@@ -119,6 +122,7 @@ class PublisherController extends Controller
                     //dd($cate);
                     $val1 = $request->normalGpPrice ?? $request->otherGpPrice;
                     $val2 = $request->normalLiPrice ?? $request->otherLiPrice;
+                    //dd($val2, $val1);
                     Post::create([
                         'website_url' => $request->website_url,                   
                         'host_url' => $url['host'] ?? null, 

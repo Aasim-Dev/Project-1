@@ -272,14 +272,14 @@
         <nav class="top-navbar">
             <div class="navbar-left">
                 <div class="balance-box">
-                    <span class="balance">$0</span>
+                    <span class="balance">${{$totalBalance}}</span>
                     <a href="#" class="add-funds">
                         <i class="fas fa-plus-circle"></i> ADD FUNDS 
                     </a>
                     <div class="overlay">
                         <div class="modal">
                             <h2>Add Funds</h2>
-                            <form id="fundForm" action="" method="POST">
+                            <form id="fundForm" action="{{ route('add-funds') }}" method="POST">
                                 <input type="hidden" name="user_id" value="1">
                                 @csrf
                                 <label>Amount (USD):</label>
@@ -404,7 +404,7 @@
                 if (method === 'paypal') {
                     let form = $('<form>', {
                         method: 'POST',
-                        action: ''
+                        action: '{{ route("wallet.paypal") }}'
                     });
 
                     form.append($('<input>', {

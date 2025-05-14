@@ -65,33 +65,41 @@
     <div>
         <h2> Here are your Some of the Orders</h2>
     </div>
+    @foreach($messages as $message)
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow">
-        <div class="modal-header">
-            <h5 class="modal-title" id="chatModalLabel">Order ID: #</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        
-        <div class="modal-body">
-            <div class="p-3 mb-3 border rounded bg-light text-danger">
-            <strong>⚠️ It is prohibited:</strong><br>
-            1. To establish any personal contact outside Link Publishers and share contact details.<br>
-            2. To discuss about Link Publishers’ prices.<br><br>
-            All messages exchanged here are monitored. Link Publishers holds the authority to suspend or ban your account if any unauthorized activity is noticed or anyone violates our guidelines.
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">Order ID: #<span id="order-id-span"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            
-            <!-- Chat input -->
-            <div class="input-group">
-            <input type="text" id="box" class="form-control" placeholder="Type your message...">
-            <button class="btn btn-primary" type="button">
-                <i class="fas fa-paper-plane">send</i>
-            </button>
+
+            <div class="modal-body">
+                <!-- Alert box -->
+                <div class="p-3 mb-3 border rounded bg-light text-danger">
+                <strong>⚠️ It is prohibited:</strong><br>
+                1. To establish any personal contact outside...<br>
+                2. To discuss about Link Publishers’ prices.<br><br>
+                All messages exchanged here are monitored.
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chat-box" class="border rounded p-3 mb-3" style="height: 300px; overflow-y: auto;">
+                <div class="text-muted text-center">{{$message->message}}</div>
+                </div>
+
+                <!-- Chat input -->
+                <div class="input-group">
+                <input type="text" id="chat-input" class="form-control" placeholder="Type your message...">
+                <button class="btn btn-primary" id="send-chat" type="button">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+                </div>
             </div>
-        </div>
+            </div>
         </div>
     </div>
-    </div>
+    @endforeach
     <table id="myTable">
             <thead>
                 <tr>
@@ -126,7 +134,10 @@
                             <button class="approve" data-id="{{$order->id}}">Approve</button>
                             <button class="reject" data-id="{{$order->id}}">Reject</button>
                         </td>  
-                        <td><button class="chat" id="chat-btn" data-id="{{$order->id}}">Chat</button></td>
+                        <td><button class="btn btn-outline-primary open-chat" data-order-id="{{ $order->id }}" data-sender-id="{{ $order->advertiser_id }}" data-user-id="{{ $order->advertiser_id }}">
+                            Chat
+                            </button>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -139,8 +150,13 @@
     <script src = "https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
     <script>
         $(document).ready(function () {
+            let senderId = null;
+            let orderId = null;
+            let receiverId = null;
             // Set CSRF token for all AJAX requests
             $.ajaxSetup({
                 headers: {
@@ -159,6 +175,7 @@
                     data: {
                         id: orderId,
                         status: status,
+                        _token: '{{ csrf_token() }}',
                     },
                     success: function(response) {
                         alert(response.message);
@@ -218,6 +235,86 @@
                     }
                 });
             });
+            let chatInterval = null;
+            $('.open-chat').on('click', function () {
+                senderId = $(this).data('sender-id');
+                orderId = $(this).data('order-id');
+                receiverId = $(this).data('user-id');
+                
+                $('#order-id-span').text(orderId);
+                $('#chat-box').html('<div class="text-muted text-center">Loading messages...</div>');
+                
+                fetchMessages();
+                clearInterval(chatInterval);
+                chatInterval = setInterval(fetchMessages, 60000);
+                setTimeout(() => {
+                    Echo.leave('chat.' + receiverId);
+                    Echo.channel('chat.' + receiverId)
+                        .listen('MessageSeen', (event) => {
+                            $('#chat-box').find(`.message[data-id="${event.messageId}"]`).append('<div class="text-muted small text-end">✔ Seen</div>');
+                        });
+                }, 1000);
+
+                const modal = new bootstrap.Modal(document.getElementById('chatModal'));
+                modal.show();
+            });
+
+            // Send message on button click
+            $('#send-chat').on('click', function () {
+                let message = $('#chat-input').val().trim();
+                if (!message) return;
+                $.ajax({
+                    url: "{{route('chat.send')}}",
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                data:{
+                    receiver_id: receiverId,
+                    message: message,
+                },
+                success: function (data) {
+                    $('#chat-input').val('');
+                    fetchMessages();
+                }
+                });
+            });
+
+            // Fetch messages function
+            function fetchMessages() {
+                $.getJSON(`/chat/messages/${senderId}`, function (messages) {
+                let chatBox = $('#chat-box');
+                chatBox.empty();
+
+                if (messages.length === 0) {
+                    chatBox.html('<div class="text-muted text-center">No messages yet.</div>');
+                    return;
+                }
+
+                messages.forEach(function (msg) {
+                    const alignment = msg.sender_id == {{ auth()->id() }} ? 'text-end' : 'text-start';
+                    const bubbleClass = alignment === 'text-end' ? 'bg-primary text-white' : 'bg-light';
+
+                    let seenLabel = '';
+                    // Show "Seen" only for messages sent by current user
+                    if (msg.sender_id == {{ auth()->id() }} && msg.is_read) {
+                        seenLabel = `<div class="text-muted small text-end">✔ Seen</div>`;
+                    }
+
+                    chatBox.append(`
+                    <div class="${alignment} message" data-id="${msg.id}">
+                        <div class="${bubbleClass} rounded p-2 m-1 d-inline-block">
+                            ${msg.message}
+                        </div>
+                    </div>
+                    `);
+                });
+
+                chatBox.scrollTop(chatBox[0].scrollHeight);
+                });
+
+                
+            }
         });
     </script>
 @endsection

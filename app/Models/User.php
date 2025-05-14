@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Post;
+use App\Models\Order;
+use App\Models\Cart;
+use App\Models\Message;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -53,5 +57,13 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function cart(){
         return $this->hasMany(Cart::class);
+    }
+
+    public function sentMessages() {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+    
+    public function receivedMessages() {
+        return $this->hasMany(Message::class, 'receiver_id');
     }
 }

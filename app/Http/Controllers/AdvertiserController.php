@@ -5,6 +5,7 @@ use App\Models\Post;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -20,7 +21,18 @@ class AdvertiserController extends Controller
     }
 
     public function show(){
+        $user = Auth::user();
         $orders = Order::all();
+        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $user = Auth::user();
         if($user->user_type == "Admin"){
             $orders = Order::all();
@@ -32,11 +44,22 @@ class AdvertiserController extends Controller
             abort(403, "Unauthorized Access");
             return redirect()->back();
         }
-        return view('advertiser.orders.list', compact('orders'));
+        return view('advertiser.orders.list', compact('orders', 'totalBalance'));
     }
 
     public function create(){
+        $user = Auth::user();
         $carts = Cart::where('advertiser_id' , Auth::id())->get();
+        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $cartItems = Cart::all();
         $cartIds = $carts->pluck('website_id')->toArray();
         $posts = Post::all(); // or use a filtered list if needed
@@ -77,12 +100,23 @@ class AdvertiserController extends Controller
                 $total += $item->guest_post_price * 1.3; // fallback
             }
         }
-        return view('advertiser.orders.create', compact('posts', 'carts', 'cartIds', 'prices', 'cartItems', 'total'));
+        return view('advertiser.orders.create', compact('posts', 'carts', 'cartIds', 'prices', 'cartItems', 'total', 'totalBalance'));
     }
 
     public function showWebsite(){
+        $user = Auth::user();
         $websites = Post::all();
-        return view('advertiser.website.list' ,compact('websites'));
+        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
+        return view('advertiser.website.list' ,compact('websites', 'totalBalance'));
     }
 
     protected function storeOrder(Request $request){
@@ -136,9 +170,25 @@ class AdvertiserController extends Controller
 
     //Here is the Start of the Cart logic 
     public function cartItems(){
+        $user = Auth::user();
         $advertiserId = Auth::id();
+        $websites = Post::all();
+        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $cartItems = Cart::with('post')->where('advertiser_id', $advertiserId)->get();
-        return view('advertiser.cart.items', compact('cartItems'));
+        if($cartItems->isEmpty()){
+            return view('advertiser.website.list', compact('websites', 'totalBalance'))->with('error', 'No Cart Items Found');
+        }else{
+            return view('advertiser.cart.items', compact('cartItems', 'totalBalance'));
+        }
     }
 
     public function cartStore(Request $request){

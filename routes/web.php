@@ -8,6 +8,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdvertiserController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\WalletController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,13 +49,17 @@ Route::middleware(['auth', 'role:Advertiser', 'verified'])->group(function(){
 
 Route::middleware(['auth', 'role:Publisher', 'verified'])->group(function(){
     Route::get('/publisher/dashboard', [PublisherController::class, 'index'])->name('publisher.dashboard');
-    Route::post('/publisher/website/store', [PublisherController::class, 'storePosts'])->name('publisher.website.store');
+    Route::post('/publisher/website/store', [PublisherController::class, 'storePosts'])->name('website.store');
     Route::post('/publisher/website/create', [PublisherController::class, 'create'])->name('publisher.website.create');
     Route::delete('/publisher/website/destroy', [PublisherController::class, 'destroy'])->name('publisher.website.delete');
     Route::get('/publisher/orders', [PublisherController::class, 'showOrders'])->name('orders');
     Route::post('/publisher/order/update', [PublisherController::class, 'updateRequest'])->name('order.update');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/chat/messages/{user}', [ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+});
 
 Auth::routes(['verify' => true]);
 
@@ -74,6 +80,11 @@ Route::get('/advertiser/orders/list', [AdvertiserController::class, 'show'])->na
 Route::get('/advertiser/orders/create', [AdvertiserController::class, 'create'])->name('orders.create');
 Route::get('/advertiser/cart/cartItems', [AdvertiserController::class, 'cartItems'])->name('cart.cartItems');
 Route::get('/advertiser/website/list', [AdvertiserController::class, 'showWebsite'])->name('website.lists');
+Route::get('/advertiser/dashboard', [WalletController::class, 'index'])->name('advertiser.dashboard');
+Route::post('/add/funds', [WalletController::class, 'addFunds'])->name('add-funds');
+Route::post('/wallet/paypal', [WalletController::class, 'handlePayPalPayment'])->name('wallet.paypal');
+Route::get('/wallet/paypal/success', [WalletController::class, 'handlePayPalSuccess'])->name('wallet.paypal.success');
+Route::get('/wallet/paypal/cancel', [WalletController::class, 'handlePayPalCancel'])->name('wallet.paypal.cancel');
 
 
 //route for category type::

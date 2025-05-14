@@ -106,7 +106,7 @@
 
 @section('content')
         <div>
-                <form id="postForm" method="POST" action="{{route('publisher.website.store')}}">
+                <form id="websiteForm" method="POST" action="{{route('website.store')}}">
                     @csrf
                     <input type="hidden" id="id" name="id">
                     <label>Website Url:</label>
@@ -177,10 +177,11 @@
                             <label>LI Price: <input type="number" id="otherLiPrice" name="otherLiPrice" placeholder="Enter LI Price"></label>
                         </div>
                     </div>
-
-                    <button type="submit" id="submit">Submit</button>
+                   
+                    <button type="submit" id="submit" >Submit</button>
                 </form>
-        </div>
+            </div>
+            
 
 @endsection
 
