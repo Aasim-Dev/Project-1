@@ -4,6 +4,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 <style>
     body {
         margin: 0;
@@ -115,6 +116,9 @@
     <script src = "https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         $(document).ready(function () {
             // Set CSRF Token
@@ -132,6 +136,19 @@
                 "order": [[ 0, "desc" ]],
                 "lengthMenu": [25, 50],
                 "pageLength": 25,
+                ajax: "",
+                columns: [
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'host_url', name: 'host_url'},
+                    {data: 'da', name: 'da'},
+                    {data: 'sample_post', name: 'sample_post'},
+                    {data: 'country', name: 'country'},
+                    {data: 'normal', name: 'normal'},
+                    {data: 'other', name: 'other'},
+                    {data: 'guest_post_price', name: 'guest_post_price'},
+                    {data: 'linkinsertion_price', name: 'linkinsertion_price'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false}
+                ],
                 "columnDefs":[
                     {
                         targets: -1,

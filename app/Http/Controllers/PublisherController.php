@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
@@ -15,8 +16,11 @@ use App\Models\Message;
 class PublisherController extends Controller
 {   //for showing the dashboard
     public function index(){
-        
-        return view('publisher.dashboard');
+        $user = Auth::user();
+        $orders = Order::where('publisher_id', $user->id)->get();
+        $wallets = Wallet::where('user_id', $user->id)->where('credit_debit', 'credit')->sum('amount');
+        $websites = Post::where('user_id', $user->id)->count('id');
+        return view('publisher.dashboard', compact('user', 'orders', 'wallets', 'websites'));
     }
 
     //for Showing Orders to the Publisher

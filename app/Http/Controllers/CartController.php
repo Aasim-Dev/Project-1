@@ -103,7 +103,7 @@ class CartController extends Controller
             'keywords' => 'keyword1',
             'anchor_text' => 'click here',
             'country' => 'USA', 
-            'word_count' => '1000 words',
+            'word_count' => '500 words',
             'category' => 'Technology',
             'reference_link' => 'https://example.com/reference',
             'target_url' => 'https://example.com/target-url',

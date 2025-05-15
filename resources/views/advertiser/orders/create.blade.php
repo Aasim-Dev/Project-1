@@ -133,7 +133,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($cartItems as $item)
+                @foreach ($carts as $item)
                     <tr>
                         <td>{{ $item->host_url }}</td>
                         @if( $item->type == 'provide_content' )
@@ -177,13 +177,15 @@
     </div>
     <div class="order-summary">
         <h3>Summary</h3>
+        <h5 style="color:green">The price shown below is with word count you entered. *</h5>
         <p>Total: ${{ number_format($total, 2) }} </p>
-        @foreach($cartItems as $item)
+
             <form method="POST">
             @csrf
-                <button type="button" class="btn btn-primary" id="checkout" data-id="{{$item->id}}" data-website_id="{{$item->website_id}}" data-host_url="{{$item->host_url}}" data-type="{{$item->type}}">Checkout</button>
+                <button type="button" class="btn btn-primary" id="checkout" data-id="{{$item->id}}" data-website_id="{{$item->website_id}}" data-host_url="{{$item->host_url}}" data-type="{{$item->type}}"
+                data-price="{{$total}}">Checkout</button>
             </form>
-        @endforeach
+
     </div>
 @endsection
 
@@ -209,6 +211,7 @@
                 var host_url = $(this).data('host_url');
                 var type = $(this).data('type');
                 var id = $(this).data('id');
+                var price = $(this).data('price');
 
                 $.ajax({
                     url: "{{route('order.store')}}",
@@ -221,6 +224,7 @@
                         host_url: host_url,
                         type: type,
                         id: id,
+                        price: price,
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {

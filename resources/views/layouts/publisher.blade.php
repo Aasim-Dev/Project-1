@@ -149,6 +149,8 @@
     <div class="sidebar">
         <h2>Publisher Panel</h2>
         <ul>
+            <li><a href="{{ route('publisher.dashboard') }}" class="text-center ms-logo-img-link mt-2"> $</a>
+            <h5 class="text-center text-white mt-2">Balance</h5></li>
             <li><a href="{{ route('publisher.dashboard') }}">Dashboard</a></li>
             <li><a href="{{ route('website.list') }}">Websites</a></li>
             <li><a href="{{route('orders')}}">Orders</a></li>

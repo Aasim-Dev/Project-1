@@ -3,7 +3,52 @@
 @section('title', 'Dashboard')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .container > div {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            width: 200px;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container > div:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .container h2 {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .container p {
+            font-size: 16px;
+            color: #718096;
+            margin: 0;
+        }
+
+        h3 {
+            font-size: 24px;
+            color: #1a202c;
+            margin: 20px;
+        }
+        /* .icon-inline {
+            color: #4a5568;
+            margin-bottom: 10px; 
+        } */
         .overlay {
             display: none;
             position: fixed;
@@ -93,38 +138,22 @@
 @endsection
 
 @section('content')
-    <div class="overlay">
-        <div class="modal">
-            <h2>Add Funds</h2>
-            <form id="fundForm" action="{{ route('add-funds') }}" method="POST">
-                <input type="hidden" name="user_id" value="1">
-                @csrf
-                <label>Amount (USD):</label>
-                <select name="amount" id="amount">
-                    <option value="null">select</option>
-                    <option value="10">$10</option>
-                    <option value="50">$50</option>
-                    <option value="100">$100</option>
-                    <option value="200">$200</option>
-                    <option value="300">$300</option>
-                    <option value="400">$400</option>
-                    <option value="500">$500</option>
-                    <option value="1000">$1000</option>
-                </select>
-
-                <label>Payment Method:</label>
-                <select id="paymentMethod" name="paymentMethod" required>
-                    <option value="razorpay">Razorpay</option>
-                    <option value="paypal">PayPal</option>
-                </select>
-
-                <div id="payButtons" style="margin-top: 20px;">
-                    <button type="button" id="rzp-button" class="btn btn-primary">Add Funds</button>
-                    <div id="paypal-button-container" style="margin-top: 10px;"></div>
-                </div>
-            </form>
+<h3>Hello {{ $user->name }},</h3>
+    <div class="container">
+        <div class="TotalOrder"> 
+            <h2>{{ count($orders) }}</h2>
+            <p><i class="fas fa-box  icon-inline"></i>Total Orders</p>
+        </div>
+        <div class="totalContent">      
+            <h2>NA</h2>
+            <p><i class="fas fa-pen-nib  icon-inline"></i>Total Content Writing</p>
+        </div>
+        <div class="total fund Added">    
+            <h2>{{ $totalCredit }}</h2>
+            <p><i class="fas fa-wallet  icon-inline"></i>Total Fund Added</p>
         </div>
     </div>
+<h3>Your Projects</h3>
 @endsection
 
 @section('scripts')

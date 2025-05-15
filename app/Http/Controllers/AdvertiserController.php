@@ -16,8 +16,19 @@ class AdvertiserController extends Controller
     //This above Logic is for the Advertiser dashboard
     public function index(){
         $user = Auth::user();
+        $orders = Order::where('advertiser_id', $user->id)->get();
+        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
 
-        return view('advertiser.dashboard');
+        return view('advertiser.dashboard', compact('user', 'wallet', 'orders'));
     }
 
     public function show(){
@@ -33,7 +44,6 @@ class AdvertiserController extends Controller
             ->value('balance');
             $totalBalance = $totalBalance ?? 0;
         }
-        $user = Auth::user();
         if($user->user_type == "Admin"){
             $orders = Order::all();
         }
@@ -65,7 +75,7 @@ class AdvertiserController extends Controller
         $posts = Post::all(); // or use a filtered list if needed
         $prices = [];
         $total = 0;
-        foreach ($cartItems as $item) {
+        foreach ($carts as $item) {
             $type = $item->type;
             $wordCount = strtolower(trim($item->word_count));
 
@@ -121,10 +131,26 @@ class AdvertiserController extends Controller
 
     protected function storeOrder(Request $request){
         //dd($request->all());
+        $user = Auth::user();
+        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $request->validate([
             'advertiser_id'=> ['exists:users,id'],
             'website_id' => ['exists:posts,id' ],         
         ]);
+        $total = $request->price;
+        //dd($total);
+        if($totalBalance < $total){
+            return response()->json(['success' => false, 'message' => 'Insufficient balance.'], 403);
+        }
         $posts = Post::findOrFail($request->website_id);  // Assuming $id is the website_id
         $publisherId = $posts->user_id;
         $carts = Cart::where('website_id', $request->website_id)->first();
@@ -139,7 +165,7 @@ class AdvertiserController extends Controller
             'da' => $carts->da,
             'tat' => $carts->tat,
             'semrush' => $carts->semrush,
-            'price' => $price,
+            'price' => $total,
             'type' => $carts->type,
             'language' => $carts->language,
             'attachment' => $carts->attachment,
@@ -156,6 +182,17 @@ class AdvertiserController extends Controller
             'special_note' => $carts->special_note,
         ]);
         $carts->delete();
+        $totalBalance -= $total;
+        Wallet::create([
+            'user_id' => $user->id,
+            'order_type' => 'buying',
+            'description' => 'Order placed successfully',
+            'payment_status' => 'COMPLETED',
+            'credit_debit' => 'debit',
+            'amount' => $total,
+            'total' => $totalBalance,
+            'updated_at' => now(),
+        ]);
         $ord = Order::all();
         return redirect()->route('orders.list')->with('success', 'Order Created Successfully');
     }

@@ -6,13 +6,16 @@ use Illuminate\Http\Request;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Wallet;
+use App\Models\Order;
 use App\Models\User;
 
 class WalletController extends Controller
 {
     public function index(){
         $user = Auth::user();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $orders = Order::where('advertiser_id', $user->id)->get();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        $totalCredit = $wallet->where('credit_debit', 'credit')->sum('amount');
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("
@@ -22,7 +25,7 @@ class WalletController extends Controller
             ->value('balance');
             $totalBalance = $totalBalance ?? 0;
         }
-        return view('advertiser.dashboard', compact('user', 'totalBalance'));
+        return view('advertiser.dashboard', compact('user', 'totalBalance','totalCredit', 'orders'));
     }
 
     public function addFunds(Request $request){
