@@ -76,7 +76,7 @@
             </div>
 
             <div class="modal-body">
-                <!-- Alert box -->
+                
                 <div class="p-3 mb-3 border rounded bg-light text-danger">
                 <strong>⚠️ It is prohibited:</strong><br>
                 1. To establish any personal contact outside...<br>
@@ -84,12 +84,10 @@
                 All messages exchanged here are monitored.
                 </div>
 
-                <!-- Chat Messages -->
                 <div id="chat-box" class="border rounded p-3 mb-3" style="height: 300px; overflow-y: auto;">
                 <div class="text-muted text-center">No messages yet.</div>
                 </div>
 
-                <!-- Chat input -->
                 <div class="input-group">
                 <input type="text" id="chat-input" class="form-control" placeholder="Type your message...">
                 <button class="btn btn-primary" id="send-chat" type="button">
@@ -202,7 +200,6 @@
                 $("#chatModalLabel").text("Order ID: #" + websiteId);
             });
 
-            // Listen to Cancel button clicks using event delegation
             $(document).on('click', '.cancel', function () {
                 let orderId = $(this).data('id');
 

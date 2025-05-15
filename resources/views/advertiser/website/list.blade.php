@@ -160,24 +160,36 @@
             });
 
             // STEP 2: Handle Add/Remove click
-            $('.add-to-cart').click(function () {
+            $(document).on('click', '.add-to-cart', function () {
                 const button = $(this);
                 const websiteId = button.data('id').toString();
                 //alert('add');
-                $.post('{{ route("cart.toggle") }}', { website_id: websiteId }, function (response) {
-                    if (response.status === 'success') {
-                        button.text("Remove from Cart").css("background-color", "#e74c3c");
-                    } else if (response.status === 'removed') {
-                        button.text("Add to Cart").css("background-color", "#2ecc71");
-                    }
-                    updateCartCount(); // Update the count on toggle
+                $.ajax({
+                    url: "{{route('cart.toggle')}}",
+                    type: "POST",
+                    data: {
+                        website_id: websiteId,
+                        _token: '{{csrf_token()}}',
+                    },
+                    success: function(response){
+                        if (response.status === 'success') {
+                            button.text("Remove from Cart").css("background-color", "#e74c3c");
+                        } else if (response.status === 'removed') {
+                            button.text("Add to Cart").css("background-color", "#2ecc71");
+                        }
+                        updateCartCount(); // Update the count on toggle
+                    },
                 });
             });
 
             // STEP 3: Count updater function
             function updateCartCount() {
-                $.get('{{ route("cart.count") }}', function (response) {
-                    $('#cart-count').text(response.count);
+                $.ajax({
+                    url: "{{route('cart.count')}}",
+                    type: "GET",
+                    success: function(response){
+                         $('#cart-count').text(response.count);
+                    },
                 });
             }
         });

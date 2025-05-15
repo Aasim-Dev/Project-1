@@ -216,9 +216,6 @@
                 $.ajax({
                     url: "{{route('order.store')}}",
                     type: "POST",
-                    // headers: {
-                    //     'Authorization': 'Bearer 1SeaFvgwn6RoKKpdL2j2BEAxjwc2ze',
-                    // },
                     data: {
                         website_id: website_id,
                         host_url: host_url,
