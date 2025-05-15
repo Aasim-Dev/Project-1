@@ -10,6 +10,7 @@ use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\MarketplaceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,13 +89,16 @@ Route::get('/wallet/paypal/cancel', [WalletController::class, 'handlePayPalCance
 
 
 //route for category type::
-Route::get('/categories-by-type', [PublisherController::class, 'getCategoriesByType'])->name('categories-by-type');
-Route::get('/cart-websites', [AdvertiserController::class, 'getCartWebsites'])->name('website.cart');
+    Route::get('/categories-by-type', [PublisherController::class, 'getCategoriesByType'])->name('categories-by-type');
+    Route::get('/cart-websites', [AdvertiserController::class, 'getCartWebsites'])->name('website.cart');
+    
+    //route for CartController
+    Route::post('/cart/update', [CartController::class, 'storeProvideContent'])->name('cart.content');
+    Route::post('/cart/linkInsertion', [CartController::class, 'linkInsertion'])->name('cart.link');
+    Route::post('/cart/hire', [CartController::class, 'hireContent'])->name('cart.hire');
+    
+    //route for the categories to show dynamically.
+    //Route::get('/publisher/website/create', [PublisherController::class, 'showCategories']);
 
-//route for CartController
-Route::post('/cart/update', [CartController::class, 'storeProvideContent'])->name('cart.content');
-Route::post('/cart/linkInsertion', [CartController::class, 'linkInsertion'])->name('cart.link');
-Route::post('/cart/hire', [CartController::class, 'hireContent'])->name('cart.hire');
-
-//route for the categories to show dynamically.
-//Route::get('/publisher/website/create', [PublisherController::class, 'showCategories']);
+//MarkeplaceController Routes 
+Route::get('/website/data', [MarketplaceController::class, 'websiteData'])->name('dataTable');

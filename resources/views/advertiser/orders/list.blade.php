@@ -179,10 +179,6 @@
                 "order": [[ 0, "desc" ]],
                 "lengthMenu": [25, 50],
                 "pageLength": 25,
-                ajax: "",
-                columns: [
-                    
-                ],
                 dom: 'Bfrtip', // Enables the buttons section
                 buttons: [
                     {

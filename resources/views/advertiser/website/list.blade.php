@@ -90,23 +90,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($websites as $website)
-                <tr>
-                    <td>{{$website->created_at}}</td>
-                    <td><a href="{{$website->website_url}}">{{ $website->host_url }}</a></td>
-                    <td>{{ $website->da }}</td>
-                    <td><a href="{{$website->website_url}}">{{ $website->sample_post }}</a></td>
-                    <td>{{ $website->country }}</td>
-                    <td>{{ $website->normal }}</td>
-                    <td>{{ $website->other }}</td>
-                    <td>{{ ($website->guest_post_price > 0) ? '$' . $website->guest_post_price : '-' }}</td>
-                    <td>{{ ($website->linkinsertion_price > 0) ? '$' . $website->linkinsertion_price : '-' }}</td>
-                    <td>
-                        <button class="add-to-cart" data-id="{{$website->id}}">Add to Cart</button>
-                        <!-- <button class="btn-delete" data-id="{{ $website->id }}">Delete</button> -->
-                    </td>
-                </tr>
-            @endforeach
+            
         </tbody>
     </table>
 @endsection
@@ -128,15 +112,12 @@
                 }
             });
             $("#myTable").dataTable({
+                serverSide: true,
                 "paging": true,
                 "searching": true,
-                "filtering": true,
-                "info": true,
-                "ordering": true,
-                "order": [[ 0, "desc" ]],
                 "lengthMenu": [25, 50],
                 "pageLength": 25,
-                ajax: "",
+                ajax: "{{route('dataTable')}}",
                 columns: [
                     {data: 'created_at', name: 'created_at'},
                     {data: 'host_url', name: 'host_url'},
@@ -149,12 +130,18 @@
                     {data: 'linkinsertion_price', name: 'linkinsertion_price'},
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
-                "columnDefs":[
+                dom: 'Bfrtip', // Enables the buttons section
+                buttons: [
                     {
-                        targets: -1,
-                        orderable: false
+                        extend: 'excelHtml5',
+                        title: 'ExportedData', // Optional: Excel file name
+                        text: '<i class="fas fa-file-excel"></i>Export', // Button text
+                        className: 'btn btn-outline-success', // Optional: Bootstrap styling
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        },
                     }
-                ]
+                ],
             });
 
             // STEP 1: Load cart item IDs and update buttons
