@@ -149,7 +149,7 @@
             <p><i class="fas fa-pen-nib  icon-inline"></i>Total Content Writing</p>
         </div>
         <div class="total fund Added">    
-            <h2>{{ $totalCredit }}</h2>
+            <h2>${{ $totalCredit }}</h2>
             <p><i class="fas fa-wallet  icon-inline"></i>Total Fund Added</p>
         </div>
     </div>

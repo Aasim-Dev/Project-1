@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\DataTables;
 
 class AdminController extends Controller
 {
@@ -121,7 +122,11 @@ class AdminController extends Controller
 
     public function showOrders(){
         $orders = Order::all();
-        return view('admin.orders.list', compact('orders'));
+        $new = Order::where('status', 'new')->count();
+        $in_progress = Order::where('status', 'in_progress')->count();
+        $completed = Order::where('status', 'complete')->count();
+        $reject = Order::where('status', 'reject')->count();
+        return view('admin.orders.list', compact('orders', 'new', 'in_progress', 'completed', 'reject'));
     }
 
     public function updateRequest(Request $request){
@@ -134,5 +139,64 @@ class AdminController extends Controller
         $order->save();
 
         return response()->json(['message' => 'Order status updated successfully.']);
+    }
+
+     public function orderData(Request $request){
+        $query = Order::query();
+        $query = Order::select(
+                'orders.*',
+                'publisher.name as publisher_name',
+                'advertiser.name as advertiser_name'
+            )
+            ->join('posts', 'posts.id', '=', 'orders.website_id')
+            ->join('users as publisher', 'publisher.id', '=', 'posts.user_id') // Publisher
+            ->join('users as advertiser', 'advertiser.id', '=', 'orders.advertiser_id') // Advertiser
+            ->orderBy('orders.id', 'DESC');
+        $search = $request->search['value'];
+        if(isset($search)){
+            $query->where(function($q) use ($search){
+                $q->where('host_url', 'like', "%{$search}%");
+            });
+        }
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        return DataTables::of($query)
+            ->editColumn('created_at', function($row){
+                return $row->created_at;
+            })
+            ->editColumn('id', function($row){
+                return $row->id;
+            })
+            ->editColumn('advertiser_name', function($row){
+                return $row->advertiser_name;
+            })
+            ->editColumn('host_url', function($row){
+                return '<a href="'. $row->website_url .'" target="_blank">' . $row->host_url . '</a>';
+            })
+            ->editColumn('publisher_name', function($row){
+                return $row->publisher_name;
+            })
+            ->editColumn('price', function($row){
+                return $row->price;
+            })
+            ->editColumn('language', function($row){
+                return $row->language;
+            })
+            ->editColumn('type', function($row){
+                return $row->type;
+            })
+            ->editColumn('tat', function($row){
+                return $row->tat;
+            })
+            ->addColumn('status', function($row){
+                return $row->status;
+            })
+            ->addColumn('action', function($row){
+                return '<button class="open-chat" data-order-id="'.$row->id.'" data-user-id="'.$row->publisher_id.'">Chat</button>';
+            })
+            ->rawColumns(['host_url', 'action'])
+            ->make(true);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\DataTables;
 use App\Models\Category;
 use App\Models\Message;
 
@@ -27,9 +28,13 @@ class PublisherController extends Controller
     public function showOrders(Request $request){
         $user = Auth::user();
         $orders = Order::where('publisher_id', $user->id)->get();
+        $new = Order::where('status', 'new')->where('publisher_id', $user->id)->count();
+        $in_progress = Order::where('status', 'in_progress')->where('publisher_id', $user->id)->count();
+        $completed = Order::where('status', 'complete')->where('publisher_id', $user->id)->count();
+        $reject = Order::where('status', 'reject')->where('publisher_id', $user->id)->count();
         $messages = Message::where('receiver_id', $user->id)->get();
         if($user){
-            return view('publisher.order.list', compact('orders', 'messages'));
+            return view('publisher.order.list', compact('orders', 'messages', 'new', 'in_progress', 'completed', 'reject'));
         }
     }
 
@@ -37,7 +42,7 @@ class PublisherController extends Controller
     public function updateRequest(Request $request){
         $request->validate([
             'id'=> ['required', 'exists:orders,id'],
-            'status' => ['required', 'string', 'in:in_progress,rejected']
+            'status' => ['required', 'string', 'in:in_progress,reject']
         ]);
         $order = Order::findorFail($request->id);
         $order->status = $request->status;
@@ -163,5 +168,67 @@ class PublisherController extends Controller
         $otherCategories = Category::where('type', 'other')->get();
 
         return view('publisher.website.create', compact('categories', 'normalCategories', 'otherCategories'));
+    }
+
+    public function orderData(Request $request){
+        $user = Auth::user();
+        $query = Order::where('publisher_id', $user->id);
+        $search = $request->search['value'];
+        $search = strtolower($search);
+        // $statusMap = [
+        //     'new' => 1,
+        //     'in_progress' => 2,
+        // ];
+
+        // if(array_key_exists($search, $statusMap)){
+        //     $query->where('status', $statusMap[$search]);
+        // }
+        if(isset($search)){
+            $query->where(function($q) use ($search){
+                $q->where('host_url', 'like', "%{$search}%")
+                ->orWhere('price', 'like', "%{$search}%")
+                ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        return DataTables::of($query)
+            ->editColumn('created_at', function($row){
+                return $row->created_at;
+            })
+            ->editColumn('id', function($row){
+                return $row->id;
+            })
+            ->editColumn('host_url', function($row){
+                return '<a href="'. $row->website_url .'" target="_blank">' . $row->host_url . '</a>';
+            })
+            ->editColumn('price', function($row){
+                return $row->price;
+            })
+            ->editColumn('language', function($row){
+                return $row->language;
+            })
+            ->editColumn('type', function($row){
+                return $row->type;
+            })
+            ->editColumn('tat', function($row){
+                $tat = $row->tat;
+                $days = intval($tat);
+                $hours = $days * 24;
+                return $hours . ' hours ';
+            })
+            ->editColumn('status', function($row){
+                return $row->status;
+            })
+            ->addColumn('action', function($row){
+                return '<button class="approve" data-id="' . $row->id . '">Approve</button> <button class="reject" data-id="' . $row->id . '">Reject</button>';
+            })
+            ->addColumn('chat', function($row){
+                return '<button class="open-chat" data-order-id="'.$row->id.'" data-user-id="'.$row->publisher_id.'" data-sender-id="'.$row->advertiser_id.'">Chat</button>';
+            })
+            ->rawColumns(['host_url', 'action', 'chat'])
+            ->make(true);
     }
 }

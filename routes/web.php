@@ -11,6 +11,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,10 +72,12 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/admin/categories/list', [AdminController::class, 'list'])->name('categories.list');
 Route::get('/admin/post/index', [AdminController::class, 'post'])->name('post.index');
 Route::get('/admin/order/list', [AdminController::class, 'showOrders'])->name('order.list');
+Route::post('/admin/order/data', [AdminController::class, 'orderData'])->name('adminsideorder.data');
 
 //PublisherController Routes
 Route::get('/publisher/website/list', [PublisherController::class, 'list'])->name('website.list');
 Route::get('publisher/website/create', [PublisherController::class, 'create'])->name('website.create');
+Route::post('publisher-orderData', [PublisherController::class, 'orderData'])->name('publisher.orderdata');
 
 //AdvertiserController Routes
 Route::get('/advertiser/orders/list', [AdvertiserController::class, 'show'])->name('orders.list');
@@ -101,4 +104,5 @@ Route::get('/wallet/paypal/cancel', [WalletController::class, 'handlePayPalCance
     //Route::get('/publisher/website/create', [PublisherController::class, 'showCategories']);
 
 //MarkeplaceController Routes 
-Route::get('/website/data', [MarketplaceController::class, 'websiteData'])->name('dataTable');
+Route::post('/website/data', [MarketplaceController::class, 'websiteData'])->name('dataTable');
+Route::post('/advertiser/website/data', [OrderController::class, 'orderData'])->name('order.data');

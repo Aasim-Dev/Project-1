@@ -65,6 +65,20 @@
     <div>
         <h2> Here are your Some of the Orders</h2>
     </div>
+    <div class="statusButtons">
+        <div class="newStatus">
+            <button id="new" class="filter-btn" data-status="new">New ( {{ $new }} )</button>
+        </div>
+        <div class="inprogressStatus">
+            <button id="ip" class="filter-btn" data-status="in_progress">In Progress ( {{ $in_progress }} )</button>
+        </div>
+        <div class="rejectStatus">
+            <button id="reject" class="filter-btn" data-status="reject">Reject ( {{ $reject }} )</button>
+        </div>
+        <div class="completeStatus">
+            <button id="complete" class="filter-btn" data-status="complete">Completed ( {{ $completed }} )</button>
+        </div>
+    </div>
     @foreach($messages as $message)
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -110,39 +124,17 @@
                     <th>Language</th>
                     <th>Type</th>
                     <th>delivery Time</th>
+                    <th>Status</th>
                     <th>Action</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($orders as $order)
-                    <tr>
-                        <td>{{$order->created_at}}</td>
-                        <td>{{$order->id}}</td>
-                        <td>{{$order->host_url}}</td>
-                        <td>{{($order->price > 0) ? '$' . $order->price : '-'}}</td>
-                        <td>{{$order->language}}</td>
-                        @if( $order->type == 'provide_content' )
-                            <td>Guest Post</td>
-                        @elseif( $order->type == 'expert_writer' )
-                            <td>Content + Guest Post</td>
-                        @elseif( $order->type == 'link_insertion' )
-                            <td>Link Insertion</td>
-                        @endif    
-                        <td>{{$order->tat}}</td>
-                        <td>
-                            <button class="approve" data-id="{{$order->id}}">Approve</button>
-                            <button class="reject" data-id="{{$order->id}}">Reject</button>
-                        </td>  
-                        <td><button class="btn btn-outline-primary open-chat" data-order-id="{{ $order->id }}" data-sender-id="{{ $order->advertiser_id }}" data-user-id="{{ $order->advertiser_id }}">
-                            Chat
-                            </button>
-                        </td>
-                    </tr>
-                @endforeach
+                
             </tbody>
         </table>
 @endsection
+               
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -152,6 +144,10 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
     <script>
         $(document).ready(function () {
             let senderId = null;
@@ -163,7 +159,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            $('.approve').click(function() {
+            $(document).on('click', '.approve', function(){
                 let orderId = $(this).data('id');
                 updateStatus(orderId, 'in_progress');
                 $(this).text('Approved');
@@ -186,20 +182,63 @@
                     }
                 });
             }
-            $(".reject").click(function(){
+            $(document).on('click', '.reject', function(){
                 let orderId = $(this).data('id');
-                updateStatus(orderId, 'rejected');
+                updateStatus(orderId, 'reject');
                 //$(this).text('Rejected');
             });
+            let status = '';
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                status = $(this).data('status');
+                $('#myTable').DataTable().ajax.reload();
+            });
             $("#myTable").dataTable({
+                serverSide: true,
                 "paging": true,
                 "searching": true,
-                "filtering": true,
-                "info": true,
-                "ordering": true,
-                "order": [[ 0, "desc" ]],
                 "lengthMenu": [25, 50],
                 "pageLength": 25,
+                orderSequence: ['desc', 'asc'],
+                ajax: {
+                    url: "{{route('publisher.orderdata')}}",
+                    type: "POST",
+                    data: function (d){
+                        d.status = status;
+                    },
+                },
+                columns: [
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'id', name: 'id'},
+                    {data: 'host_url', name: 'host_url'},
+                    {data: 'price', name: 'price'},
+                    {data: 'language', name: 'language'},
+                    {data: 'type', name: 'type'},
+                    {data: 'tat', name: 'tat'},
+                    {data: 'status', name: 'status'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                    {data: 'chat', name: 'chat', orderable: false, searchable: false},
+                ],
+                columnDefs: [{
+                    targets: '_all',
+                    orderSequence: ['desc', 'asc'] 
+                }],
+                dom: 'Bfrtip', // Enables the buttons section
+                buttons: [
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        title: 'OrdersData', // Optional: Excel file name
+                        text: '<i class="fas fa-file-excel"></i>Export', // Button text
+                        className: 'btn btn-outline-success', // Optional: Bootstrap styling
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        },
+                    }
+                ],
+                
             });
 
             $('#myTable').on('click', '#chat-btn', function() {
@@ -210,33 +249,8 @@
                 $("#chatModalLabel").text("Order ID: #" + websiteId);
             });
 
-            // Listen to Cancel button clicks using event delegation
-            $(document).on('click', '.cancel', function () {
-                let orderId = $(this).data('id');
-
-                if (!confirm("Are you sure you want to cancel this order?")) {
-                    return;
-                }
-
-                $.ajax({
-                    url: "{{ route('orders.cancel') }}",
-                    method: "POST",
-                    data: {
-                        id: orderId,
-                        status: 'cancelled'
-                    },
-                    success: function (response) {
-                        location.reload();
-                        button.text('Cancelled').prop('disabled', true).css('background-color', 'gray');
-                    },
-                    error: function (xhr) {
-                        console.error(xhr.responseText);
-                        alert("Something went wrong");
-                    }
-                });
-            });
             let chatInterval = null;
-            $('.open-chat').on('click', function () {
+            $(document).on('click', '.open-chat', function(){
                 senderId = $(this).data('sender-id');
                 orderId = $(this).data('order-id');
                 receiverId = $(this).data('user-id');

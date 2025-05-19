@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use illuminate\Support\Facades\Auth;
+use App\Services\GoogleSheetServices;
 use Illuminate\Support\Str;
 use DB;
 
@@ -17,7 +18,7 @@ class AdvertiserController extends Controller
     public function index(){
         $user = Auth::user();
         $orders = Order::where('advertiser_id', $user->id)->get();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("
@@ -34,7 +35,11 @@ class AdvertiserController extends Controller
     public function show(){
         $user = Auth::user();
         $orders = Order::all();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        $new = Order::where('advertiser_id', $user->id)->where('status', 'new')->count();
+        $in_progress = Order::where('advertiser_id', $user->id)->where('status', 'in_progress')->count();
+        $completed = Order::where('advertiser_id', $user->id)->where('status', 'complete')->count();
+        $reject = Order::where('advertiser_id', $user->id)->where('status', 'reject')->count();
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("
@@ -54,13 +59,13 @@ class AdvertiserController extends Controller
             abort(403, "Unauthorized Access");
             return redirect()->back();
         }
-        return view('advertiser.orders.list', compact('orders', 'totalBalance'));
+        return view('advertiser.orders.list', compact('orders', 'totalBalance', 'new', 'in_progress', 'completed', 'reject'));
     }
 
     public function create(){
         $user = Auth::user();
         $carts = Cart::where('advertiser_id' , Auth::id())->get();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("
@@ -116,7 +121,7 @@ class AdvertiserController extends Controller
     public function showWebsite(){
         $user = Auth::user();
         $websites = Post::all();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("
@@ -132,7 +137,7 @@ class AdvertiserController extends Controller
     protected function storeOrder(Request $request){
         //dd($request->all());
         $user = Auth::user();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("
@@ -181,6 +186,34 @@ class AdvertiserController extends Controller
             'target_url' => $carts->target_url,
             'special_note' => $carts->special_note,
         ]);
+
+        $sheet = new GoogleSheetServices();
+        $sheet->saveDataToSheet([[
+            $user->name, 
+            $publisherId,
+            $request->website_id,
+            $carts->host_url,
+            $carts->da,
+            $carts->tat,
+            $carts->semrush,
+            $total,
+            $carts->type,
+            $carts->language,
+            $carts->attachment,
+            $carts->special_instruction,
+            $carts->existing_post_url,
+            $carts->title_suggestion,
+            $carts->keywords,
+            $carts->anchor_text,
+            $carts->country,
+            $carts->word_count,
+            $carts->category,
+            $carts->reference_link,
+            $carts->target_url,
+            $carts->special_note,
+            now()->toDateTimeString(),
+        ]]);
+        //dd($sheet);
         $carts->delete();
         $totalBalance -= $total;
         Wallet::create([
@@ -210,7 +243,7 @@ class AdvertiserController extends Controller
         $user = Auth::user();
         $advertiserId = Auth::id();
         $websites = Post::all();
-        $wallet = Wallet::where('status', 'COMPLETED')->where('user_id', $user->id);
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("

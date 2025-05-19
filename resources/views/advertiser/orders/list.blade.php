@@ -11,60 +11,171 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: #333;
+            margin: 30px 0 10px;
+            font-weight: 600;
+        }
+
         #myTable {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* Table headers */
-        #myTable thead tr {
-            background-color: #4CAF50;
-            color: white;
-            text-align: left;
+        #myTable thead {
+            background-color: #f8f9fa;
         }
 
-        /* Table cells */
-        #myTable th, #myTable td {
+        #myTable thead th {
             padding: 12px 16px;
+            font-weight: 600;
+            color: #333;
             border-bottom: 1px solid #ddd;
         }
 
-        /* Table row hover */
-        #myTable tbody tr:hover {
-            background-color: #f5f5f5;
+        #myTable tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            color: #555;
         }
 
-        /* Heading */
+        #myTable tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Page Heading */
         h2 {
-            font-size: 24px;
+            font-size: 22px;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        /* Status Buttons Group */
+        .statusButtons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .statusButtons .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid #ccc;
+            background-color: #f4f4f4;
             color: #333;
-            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .statusButtons .filter-btn:hover {
+            background-color: #eaeaea;
+        }
+
+        /* Active/Selected Button - JavaScript should apply this class */
+        .filter-btn.active {
+            background-color: #4CAF50 !important;
+            color: white;
+            border-color: #4CAF50;
         }
 
         /* Cancel Button Styling */
         .cancel {
             padding: 6px 12px;
-            background-color: #ff4d4d;
+            background-color: #dc3545;
             border: none;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
         .cancel:hover {
-            background-color: #e60000;
+            background-color: #bb2d3b;
+        }
+
+        /* Chat Modal Styling */
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        #chat-box {
+            height: 300px;
+            overflow-y: auto;
+            background-color: #ffffff;
+        }
+
+        #chat-box .text-start .bg-light {
+            background-color: #f8f9fa;
+            color: #000;
+        }
+
+        #chat-box .text-end .bg-primary {
+            background-color: #0d6efd;
+        }
+
+        #chat-box .message {
+            margin-bottom: 10px;
+        }
+
+        .dataTables_wrapper .dt-buttons {
+            margin-bottom: 15px;
+        }
+
+        .btn-outline-primary {
+            border-radius: 4px;
+        }
+
+        .btn-outline-success {
+            border-radius: 4px;
+        }
+
+        /* Responsive tweak */
+        @media screen and (max-width: 768px) {
+            .filter-btn {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #myTable th, #myTable td {
+                font-size: 14px;
+                padding: 10px;
+            }
         }
     </style>
+
 @endsection
 
 @section('content')
     <div>
         <h2> Here are your Some of the Orders</h2>
+    </div>
+    <div class="statusButtons">
+        <div class="newStatus">
+            <button id="new" class="filter-btn" data-status="new">New ( {{ $new }} )</button>
+        </div>
+        <div class="inprogressStatus">
+            <button id="ip" class="filter-btn" data-status="in_progress">In Progress ( {{ $in_progress }} )</button>
+        </div>
+        <div class="rejectStatus">
+            <button id="reject" class="filter-btn" data-status="reject">Reject ( {{ $reject }} )</button>
+        </div>
+        <div class="completeStatus">
+            <button id="complete" class="filter-btn" data-status="complete">Completed ( {{ $completed }} )</button>
+        </div>
     </div>
     <!-- Chat Modal -->
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
@@ -76,7 +187,7 @@
             </div>
 
             <div class="modal-body">
-                
+
                 <div class="p-3 mb-3 border rounded bg-light text-danger">
                 <strong>⚠️ It is prohibited:</strong><br>
                 1. To establish any personal contact outside...<br>
@@ -115,28 +226,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($orders as $order)
-                    <tr>
-                        <td>{{$order->created_at}}</td>
-                        <td>{{$order->id}}</td>
-                        <td>{{$order->host_url}}</td>
-                        <td>{{($order->price > 0) ? '$' . $order->price : '-'}}</td>
-                        <td>{{$order->language}}</td>
-                        @if( $order->type == 'provide_content' )
-                            <td>Guest Post</td>
-                        @elseif( $order->type == 'expert_writer' )
-                            <td>Content + Guest Post</td>
-                        @elseif( $order->type == 'link_insertion' )
-                            <td>Link Insertion</td>
-                        @endif  
-                        <td>{{$order->tat}}</td>
-                        <td>{{$order->status}}</td>  
-                        <td><button class="btn btn-outline-primary open-chat" data-order-id="{{ $order->id }}" data-user-id="{{ $order->publisher_id }}">
-                            Chat
-                            </button>
-                        </td>
-                    </tr>
-                @endforeach
+               
             </tbody>
             <tfoot>
                 <tr>
@@ -157,6 +247,8 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
     <script>
         $(document).ready(function () {
             let receiverId = null;
@@ -168,20 +260,49 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            let status = '';
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                status = $(this).data('status');
+                $('#myTable').DataTable().ajax.reload();
+            });
             $("#myTable").dataTable({
+                serverSide: true,
                 "paging": true,
                 "searching": true,
-                "filtering": true,
-                "info": true,
-                "ordering": true,
-                "order": [[ 0, "desc" ]],
                 "lengthMenu": [25, 50],
                 "pageLength": 25,
+                orderSequence: ['desc', 'asc'],
+                ajax: {
+                    url: "{{route('order.data')}}",
+                    type: "POST",
+                    data: function (d){
+                        d.status = status;
+                    },
+                },
+                columns: [
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'id', name: 'id'},
+                    {data: 'host_url', name: 'host_url'},
+                    {data: 'price', name: 'price'},
+                    {data: 'language', name: 'language'},
+                    {data: 'type', name: 'type'},
+                    {data: 'tat', name: 'tat'},
+                    {data: 'status', name: 'status'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                ],
+                columnDefs: [{
+                    targets: '_all',
+                    orderSequence: ['desc', 'asc'] 
+                }],
                 dom: 'Bfrtip', // Enables the buttons section
                 buttons: [
                     {
-                        extend: 'excelHtml5',
-                        title: 'ExportedData', // Optional: Excel file name
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        title: 'OrdersData', // Optional: Excel file name
                         text: '<i class="fas fa-file-excel"></i>Export', // Button text
                         className: 'btn btn-outline-success', // Optional: Bootstrap styling
                         exportOptions: {
@@ -192,7 +313,7 @@
                 
             });
 
-            $('#myTable').on('click', '#chat-btn', function() {
+            $(document).on('click', '#chat-btn', function() {
                 var orderId = $(this).data('id');
                 var websiteId = $(this).data('website-id');
                 //$("#box").reset();
@@ -224,7 +345,7 @@
                     }
                 });
             });
-            $('.open-chat').on('click', function () {
+            $(document).on('click', '.open-chat', function(){           
                 receiverId = $(this).data('user-id');
                 orderId = $(this).data('order-id');
 
