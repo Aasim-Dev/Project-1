@@ -12,6 +12,10 @@
         padding: 0;
         background-color: #f4f6f8;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;    
+        -ms-user-select: none; 
     }
 
     /* Main Container */

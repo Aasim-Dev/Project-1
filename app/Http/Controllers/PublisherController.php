@@ -20,13 +20,33 @@ class PublisherController extends Controller
         $user = Auth::user();
         $orders = Order::where('publisher_id', $user->id)->get();
         $wallets = Wallet::where('user_id', $user->id)->where('credit_debit', 'credit')->sum('amount');
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $websites = Post::where('user_id', $user->id)->count('id');
-        return view('publisher.dashboard', compact('user', 'orders', 'wallets', 'websites'));
+        return view('publisher.dashboard', compact('user', 'orders', 'wallets', 'websites', 'totalBalance'));
     }
 
     //for Showing Orders to the Publisher
     public function showOrders(Request $request){
         $user = Auth::user();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $orders = Order::where('publisher_id', $user->id)->get();
         $new = Order::where('status', 'new')->where('publisher_id', $user->id)->count();
         $in_progress = Order::where('status', 'in_progress')->where('publisher_id', $user->id)->count();
@@ -34,12 +54,23 @@ class PublisherController extends Controller
         $reject = Order::where('status', 'reject')->where('publisher_id', $user->id)->count();
         $messages = Message::where('receiver_id', $user->id)->get();
         if($user){
-            return view('publisher.order.list', compact('orders', 'messages', 'new', 'in_progress', 'completed', 'reject'));
+            return view('publisher.order.list', compact('orders', 'messages', 'new', 'in_progress', 'completed', 'reject', 'totalBalance'));
         }
     }
 
     //for updating orderStatus
     public function updateRequest(Request $request){
+        $user = Auth::user();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $request->validate([
             'id'=> ['required', 'exists:orders,id'],
             'status' => ['required', 'string', 'in:in_progress,reject']
@@ -47,6 +78,48 @@ class PublisherController extends Controller
         $order = Order::findorFail($request->id);
         $order->status = $request->status;
         $order->save();
+
+        if($request->status == 'in_progress'){
+            $wallets = Wallet::where('user_id', $order->advertiser_id)->where('credit_debit', 'debit')->orderBy('id', 'DESC')->first();
+            if($wallets){
+                $wallets = Wallet::create([
+                    'user_id' => $user->id,
+                    'order_type' => 'buying',
+                    'description' => 'Order sells successfully',
+                    'payment_status' => 'COMPLETED',
+                    'credit_debit' => 'credit',
+                    'amount' => $order->price,
+                    'total' => $totalBalance ,
+                    'updated_at' => now(),
+                ]);
+                return response()->json(['message' => 'Payment completed successfully.']);
+            } 
+        }elseif($request->status == 'reject'){
+            $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $order->advertiser_id);
+            if($wallet){
+                $totalBalance = Wallet::where('user_id', $order->advertiser_id)
+                ->selectRaw("
+                    SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                    SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+                ")
+                ->value('balance');
+                $totalBalance = $totalBalance ?? 0;
+            }
+            $wallets = Wallet::where('user_id', $order->advertiser_id)->where('credit_debit', 'debit')->orderBy('id', 'DESC')->first();
+            if($wallets){
+                $wallets = Wallet::create([
+                    'user_id' => $order->advertiser_id,
+                    'order_type' => 'refund',
+                    'description' => 'refund place successfully',
+                    'payment_status' => 'COMPLETED',
+                    'credit_debit' => 'credit',
+                    'amount' => $order->price,
+                    'total' => $totalBalance + $order->price,
+                    'updated_at' => now(),
+                ]);
+                return response()->json(['message' => 'Refund completed successfully.']);
+            }
+        }
 
         return response()->json(['message' => 'Order status updated successfully.']);
     }
@@ -72,7 +145,18 @@ class PublisherController extends Controller
     //for showing what are the post available and I have uploaded
     public function list(){
         //use below variable for declaration because if not declared here than the categories.list file will not be run.
+        $user = Auth::user();
         $posts = Post::all();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $user = auth()->user();
         if($user->user_type == "Admin"){
             $posts = Post::all();
@@ -81,7 +165,7 @@ class PublisherController extends Controller
         }else{
             abort(403, 'Unauthorized Access');
         }   
-        return view('publisher.website.list', compact('posts'));
+        return view('publisher.website.list', compact('posts', 'wallet', 'totalBalance'));
     }
     //For updating and storing post to the table 
     protected function storePosts(Request $request){
@@ -164,10 +248,21 @@ class PublisherController extends Controller
     //I have created this function so that we can declare this variable into the blade file.
     public function showCategories(){
         $categories = Category::all();
+        $user = Auth::user();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
         $normalCategories = Category::where('type', 'normal')->get();
         $otherCategories = Category::where('type', 'other')->get();
 
-        return view('publisher.website.create', compact('categories', 'normalCategories', 'otherCategories'));
+        return view('publisher.website.create', compact('categories', 'normalCategories', 'otherCategories', 'totalBalance'));
     }
 
     public function orderData(Request $request){
@@ -199,19 +294,20 @@ class PublisherController extends Controller
                 return $row->created_at;
             })
             ->editColumn('id', function($row){
-                return $row->id;
+                return '#' . $row->id;
             })
             ->editColumn('host_url', function($row){
                 return '<a href="'. $row->website_url .'" target="_blank">' . $row->host_url . '</a>';
             })
             ->editColumn('price', function($row){
-                return $row->price;
+                return $row->price > 0 ? '$' . $row->price : '-';
             })
             ->editColumn('language', function($row){
                 return $row->language;
             })
             ->editColumn('type', function($row){
-                return $row->type;
+                $type = (($row->type == 'provide_content') ? "Guest Post" :(($row->type == 'expert_writer') ? "Content and Guest Post" : (($row->type == 'link_insertion') ? "Link Insertion" : "Null")));
+                return $type;
             })
             ->editColumn('tat', function($row){
                 $tat = $row->tat;

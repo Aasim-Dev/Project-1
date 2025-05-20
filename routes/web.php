@@ -12,6 +12,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Auth\RegisterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,10 +27,7 @@ use App\Http\Controllers\OrderController;
 
 Route::get('/', function () {
 
-    // $user = User::where('id', 1)-> first();
-    // dd($user);
     return view('welcome');
-
    
 });
 
@@ -67,6 +65,9 @@ Auth::routes(['verify' => true]);
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 //Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/register/partner', [RegisterController::class, 'showPartnerForm'])->name('partner.register');
+Route::post('/register/partner/submit', [RegisterController::class, 'registerForm'])->name('register.partner');
+Route::get('/register/email-verify', [RegisterController::class, 'registered']);
 
 //AdminController Routes
 Route::get('/admin/categories/list', [AdminController::class, 'list'])->name('categories.list');
@@ -84,6 +85,7 @@ Route::get('/advertiser/orders/list', [AdvertiserController::class, 'show'])->na
 Route::get('/advertiser/orders/create', [AdvertiserController::class, 'create'])->name('orders.create');
 Route::get('/advertiser/cart/cartItems', [AdvertiserController::class, 'cartItems'])->name('cart.cartItems');
 Route::get('/advertiser/website/list', [AdvertiserController::class, 'showWebsite'])->name('website.lists');
+Route::get('/advertiser/partner/api', [AdvertiserController::class, 'apiPage'])->name('api');
 Route::get('/advertiser/dashboard', [WalletController::class, 'index'])->name('advertiser.dashboard');
 Route::post('/add/funds', [WalletController::class, 'addFunds'])->name('add-funds');
 Route::post('/wallet/paypal', [WalletController::class, 'handlePayPalPayment'])->name('wallet.paypal');

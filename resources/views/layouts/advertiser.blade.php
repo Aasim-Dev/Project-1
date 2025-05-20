@@ -317,6 +317,9 @@
                 <a href="{{route('advertiser.dashboard')}}" class="nav-link">Dashboard</a>
                 <a href="{{route('website.lists')}}" class="nav-link">Marketplace</a>
                 <a href="{{route('orders.list')}}" class="nav-link">My Orders</a>
+                @if(Auth::user()->register_from === 'partner')
+                <a href="{{route('api')}}" class="nav-link">API</a>
+                @endif
                  <!--<a href="#" class="nav-link">Content Purchase</a>
                 <a href="#" class="nav-link">Free SEO Tools</a> -->
             </div>

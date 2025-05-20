@@ -11,6 +11,7 @@ use illuminate\Support\Facades\Auth;
 use App\Services\GoogleSheetServices;
 use Illuminate\Support\Str;
 use DB;
+use \Cache;
 
 class AdvertiserController extends Controller
 {
@@ -30,6 +31,37 @@ class AdvertiserController extends Controller
         }
 
         return view('advertiser.dashboard', compact('user', 'wallet', 'orders'));
+    }
+
+    public function apiPage(){
+        $user = Auth::user();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
+        $token = null;
+        if($totalBalance > 0 && $totalBalance != null){
+            if(!$user->openapi_token){
+                User::where('id', $user->id)->update([
+                    'openapi_token' => Str::random(32),
+                ]); 
+            }
+            $token = $user->openapi_token;            
+        }elseif($totalBalance == 0 || $totalBalance == null){
+            if($user->openapi_token){
+                User::where('id', $user->id)->update([
+                    'openapi_token' => null,
+                ]);
+            }
+            $token = $user->openapi_token;
+        }
+        return view('advertiser.api.apipage', compact('user', 'totalBalance', 'token'));
     }
 
     public function show(){

@@ -14,6 +14,10 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;    
+            -ms-user-select: none; 
         }
 
         h2 {
@@ -229,8 +233,10 @@
                
             </tbody>
             <tfoot>
-                <tr>
+                <tr> 
+                    @if($orders->count() > 0)
                     <td colspan="8" style="text-align: center; color: red;">You have 24 Hours of Time to complete the order.</td>
+                    @endif
                 </tr>
             </tfoot>
         </table>

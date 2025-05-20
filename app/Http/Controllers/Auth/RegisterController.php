@@ -32,7 +32,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    //protected $redirectTo = view('emails.verify-email');
 
     /**
      * Create a new controller instance.
@@ -73,7 +73,24 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'user_type' => $data['user_type'],
+            'register_from' => $data['register_from'] ?? null,
         ]);
+    }
+
+    public function showPartnerForm()
+    {
+        return view('auth.registerpartner');
+    }
+
+    public function registerForm(Request $request){
+        $this->validator($request->all())->validate();
+
+        event(new Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+
+        return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
     }
 
     public function register(Request $request)
@@ -86,6 +103,11 @@ class RegisterController extends Controller
 
         return $this->registered($request, $user)
                         ?: redirect($this->redirectPath());
+    }
+
+    protected function registered(Request $request, $user)
+    {
+        return view('emails.verify-email', compact('user'));
     }
 
     // protected function authenticated(Request $request, $user){

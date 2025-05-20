@@ -11,6 +11,10 @@
             color: #333;
             margin: 0;
             padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;    
+            -ms-user-select: none; 
         }
 
         /* Container styling */

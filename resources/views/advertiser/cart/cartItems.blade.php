@@ -5,6 +5,12 @@
 @section('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <style>
+        body{
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;    
+            -ms-user-select: none;   
+        }
         table {
             width: 100%;
             border-collapse: collapse;

@@ -39,19 +39,20 @@ class OrderController extends Controller
                 return $row->created_at;
             })
             ->editColumn('id', function($row){
-                return $row->id;
+                return '#' . $row->id;
             })
             ->editColumn('host_url', function($row){
                 return '<a href="'. $row->website_url .'" target="_blank">' . $row->host_url . '</a>';
             })
             ->editColumn('price', function($row){
-                return $row->price;
+                return $row->price > 0 ? '$' . $row->price : '-';
             })
             ->editColumn('language', function($row){
                 return $row->language;
             })
             ->editColumn('type', function($row){
-                return $row->type;
+                $type = (($row->type == 'provide_content') ? "Guest Post" :(($row->type == 'expert_writer') ? "Content and Guest Post" : (($row->type == 'link_insertion') ? "Link Insertion" : "Null")));
+                return $type;
             })
             ->editColumn('tat', function($row){
                 $tat = $row->tat;
