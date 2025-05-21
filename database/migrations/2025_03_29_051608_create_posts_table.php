@@ -11,19 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('websites', function (Blueprint $table) {
             $table->id();
             $table->string('website_url');
             $table->string('host_url');
+            $table->longtext('guidelines');
             $table->integer('da');
             $table->string('sample_post');
             $table->integer('ahref_traffic')->nullable();
+            $table->integer('semrush')->nullable();
             $table->string('tat')->nullable();
+            $table->boolean('status')->default(0);
+            $table->string('website_name')->nullable();
             $table->string('country');
-            $table->string('normal')->nullable();
-            $table->string('other')->nullable();
-            $table->decimal('guest_post_price', 10, 2 );
-            $table->decimal('linkinsertion_price', 10, 2 );
+            $table->string('normal_category')->nullable();
+            $table->string('forbidden_category')->nullable();
+            $table->decimal('guest_post_price', 10, 2 )->nullable();
+            $table->decimal('linkinsertion_price', 10, 2 )->nullable();
+            $table->decimal('fc_guest_post_price', 10, 2)->nullable();
+            $table->decimal('fc_linkinsertion_price', 10, 2)->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->unsignedBigInteger('user_id')->nullable();
@@ -37,6 +43,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('websites');
     }
 };

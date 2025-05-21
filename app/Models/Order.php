@@ -42,7 +42,7 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
     public function posts(){
-        return $this->belongsTo(Post::class);
+        return $this->belongsTo(Website::class);
     }
     public function cart(){
         return $this->belongsTo(Cart::class);

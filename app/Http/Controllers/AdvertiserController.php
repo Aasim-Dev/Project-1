@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Post;
+use App\Models\Website;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\User;
@@ -109,7 +109,7 @@ class AdvertiserController extends Controller
         }
         $cartItems = Cart::all();
         $cartIds = $carts->pluck('website_id')->toArray();
-        $posts = Post::all(); // or use a filtered list if needed
+        $websites = Website::all(); // or use a filtered list if needed
         $prices = [];
         $total = 0;
         foreach ($carts as $item) {
@@ -147,12 +147,12 @@ class AdvertiserController extends Controller
                 $total += $item->guest_post_price * 1.3; // fallback
             }
         }
-        return view('advertiser.orders.create', compact('posts', 'carts', 'cartIds', 'prices', 'cartItems', 'total', 'totalBalance'));
+        return view('advertiser.orders.create', compact('websites', 'carts', 'cartIds', 'prices', 'cartItems', 'total', 'totalBalance'));
     }
 
     public function showWebsite(){
         $user = Auth::user();
-        $websites = Post::all();
+        $websites = Website::all();
         $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
@@ -181,15 +181,15 @@ class AdvertiserController extends Controller
         }
         $request->validate([
             'advertiser_id'=> ['exists:users,id'],
-            'website_id' => ['exists:posts,id' ],         
+            'website_id' => ['exists:websites,id' ],         
         ]);
         $total = $request->price;
         //dd($total);
         if($totalBalance < $total){
             return response()->json(['success' => false, 'message' => 'Insufficient balance.'], 403);
         }
-        $posts = Post::findOrFail($request->website_id);  // Assuming $id is the website_id
-        $publisherId = $posts->user_id;
+        $websites = Website::findOrFail($request->website_id);  // Assuming $id is the website_id
+        $publisherId = $websites->user_id;
         $carts = Cart::where('website_id', $request->website_id)->first();
         $user = User::where('id', $carts->advertiser_id)->first();
         $price = ($carts->guest_post_price ?? $carts->linkinsertion_price) * 1.3;
@@ -274,7 +274,7 @@ class AdvertiserController extends Controller
     public function cartItems(){
         $user = Auth::user();
         $advertiserId = Auth::id();
-        $websites = Post::all();
+        $websites = Website::all();
         $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
@@ -285,7 +285,7 @@ class AdvertiserController extends Controller
             ->value('balance');
             $totalBalance = $totalBalance ?? 0;
         }
-        $cartItems = Cart::with('post')->where('advertiser_id', $advertiserId)->get();
+        $cartItems = Cart::with('website')->where('advertiser_id', $advertiserId)->get();
         if($cartItems->isEmpty()){
             return view('advertiser.website.list', compact('websites', 'totalBalance'))->with('error', 'No Cart Items Found');
         }else{
@@ -317,7 +317,7 @@ class AdvertiserController extends Controller
         //dd(auth()->user());
         $advertiserId = Auth::id();
         $websiteId = $request->website_id;
-        $website = Post::where('id', $websiteId)->first();
+        $website = Website::where('id', $websiteId)->first();
         //dd($website->ahref_traffic);
         $cartItem = Cart::where('advertiser_id', $advertiserId)->where('website_id', $websiteId)->first();
         if($cartItem){
@@ -349,6 +349,24 @@ class AdvertiserController extends Controller
         $order->status = $request->status;
         $order->save();
         return response()->json(['message' => 'Order Cancelled Successfully']);
+    }
+
+    public function getPrice(Request $request){
+        $url = preg_replace("/^https?:\/\/(www\.)?/", "", $request->priceUpdate);
+        //dd($url);
+        $url1 = $request->priceUpdate;
+        $user = Auth::user();
+        $website = Website::where('host_url', $url)->first();
+        if(!$website){
+            return response()->json(['error' => 'Website not found', 'status' => 'error']);
+        }
+        if($website){
+            return response()->json([
+                'status' => 'success',
+                'guest_post_price' => $website->guest_post_price,
+                'linkinsertion_price' => $website->linkinsertion_price,
+            ]);
+        }
     }
 }
 

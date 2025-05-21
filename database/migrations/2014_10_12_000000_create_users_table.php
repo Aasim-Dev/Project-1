@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('user_type');
             $table->string('register_from')->nullable();
+            $table->boolean('vacation_mode')->default(0)->nullable();
             $table->string('openapi_token')->nullable();
             $table->rememberToken();
             $table->timestamps();

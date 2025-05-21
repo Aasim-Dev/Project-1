@@ -38,8 +38,8 @@ class Cart extends Model
     public function users(){
         return $this->belongsTo(User::class);
     }
-    public function post(){
-        return $this->belongsTo(Post::class, 'website_id', 'id');
+    public function website(){
+        return $this->belongsTo(Website::class, 'website_id', 'id');
     }
     public function orders(){
         return $this->hasMany(Order::class);

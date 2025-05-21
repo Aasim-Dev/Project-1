@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('website_id');
             $table->foreign('advertiser_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('publisher_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('website_id')->references('id')->on('posts')->onDelete('cascade');
+            $table->foreign('website_id')->references('id')->on('websites')->onDelete('cascade');
             $table->string('host_url')->nullable();
             $table->integer('da')->nullable();
             $table->string('tat')->nullable();

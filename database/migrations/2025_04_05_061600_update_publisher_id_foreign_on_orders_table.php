@@ -21,7 +21,7 @@ return new class extends Migration
             // Re-add updated foreign key (example: onDelete cascade)
             $table->foreign('publisher_id')
                   ->references('user_id')
-                  ->on('posts')
+                  ->on('websites')
                   ->onDelete('cascade'); // or 'set null', 'restrict', etc.
         });
     }
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->dropForeign(['publisher_id']);
             $table->foreign('publisher_id')
                   ->references('user_id')
-                  ->on('posts')
+                  ->on('websites')
                   ->onDelete('restrict'); // Revert back to original
         });
     }

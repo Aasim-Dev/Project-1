@@ -9,7 +9,7 @@ use App\Mail\ReportMail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\OrderRemider;
 use App\Helper\MailHelper;
-use App\Models\Post;
+use App\Models\Website;
 use App\Jobs\EmailReminderJob;
 
 class OrderReminderMail extends Command
@@ -47,9 +47,9 @@ class OrderReminderMail extends Command
         ->where('orders.status', 'new')
         ->get();
 
-        $getData = Order::select('orders.*', 'posts.*', 'users.*', 'orders.created_at as order_created_at')
-        ->leftJoin('posts', 'posts.id', 'orders.website_id')
-        ->leftJoin('users', 'users.id', 'posts.user_id')
+        $getData = Order::select('orders.*', 'websites.*', 'users.*', 'orders.created_at as order_created_at')
+        ->leftJoin('websites', 'websites.id', 'orders.website_id')
+        ->leftJoin('users', 'users.id', 'websites.user_id')
         ->where('orders.status', 'new')
         ->orderBy('orders.id', 'DESC')
         ->get();

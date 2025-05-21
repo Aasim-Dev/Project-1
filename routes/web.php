@@ -82,15 +82,16 @@ Route::post('publisher-orderData', [PublisherController::class, 'orderData'])->n
 
 //AdvertiserController Routes
 Route::get('/advertiser/orders/list', [AdvertiserController::class, 'show'])->name('orders.list');
-Route::get('/advertiser/orders/create', [AdvertiserController::class, 'create'])->name('orders.create');
-Route::get('/advertiser/cart/cartItems', [AdvertiserController::class, 'cartItems'])->name('cart.cartItems');
-Route::get('/advertiser/website/list', [AdvertiserController::class, 'showWebsite'])->name('website.lists');
+Route::get('/advertiser/orders', [AdvertiserController::class, 'create'])->name('orders.create');
+Route::get('/advertiser/cart', [AdvertiserController::class, 'cartItems'])->name('cart.cartItems');
+Route::get('/advertiser/marketplace', [AdvertiserController::class, 'showWebsite'])->name('website.lists');
 Route::get('/advertiser/partner/api', [AdvertiserController::class, 'apiPage'])->name('api');
 Route::get('/advertiser/dashboard', [WalletController::class, 'index'])->name('advertiser.dashboard');
 Route::post('/add/funds', [WalletController::class, 'addFunds'])->name('add-funds');
 Route::post('/wallet/paypal', [WalletController::class, 'handlePayPalPayment'])->name('wallet.paypal');
 Route::get('/wallet/paypal/success', [WalletController::class, 'handlePayPalSuccess'])->name('wallet.paypal.success');
 Route::get('/wallet/paypal/cancel', [WalletController::class, 'handlePayPalCancel'])->name('wallet.paypal.cancel');
+Route::post('/partner/api/price', [AdvertiserController::class, 'getPrice'])->name('checkPrice');
 
 
 //route for category type::

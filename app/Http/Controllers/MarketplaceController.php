@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use App\Models\Post;
+use App\Models\Website;
 
 class MarketplaceController extends Controller
 {
     public function websiteData(Request $request){
-        $query = Post::query();
+        $query = Website::query();
         $search = $request->search['value'];
         if(isset($search)){
             $query->where(function($q) use ($search){
@@ -33,7 +33,7 @@ class MarketplaceController extends Controller
         }
 
         if ($request->category_filter && is_array($request->category_filter)) {
-            $query->whereIn('category', $request->category_filter);
+            $query->whereIn('normal_category', $request->category_filter);
         }
 
         if ($request->country_filter && is_array($request->country_filter)) {
@@ -83,38 +83,7 @@ class MarketplaceController extends Controller
         if ($request->link_type_filter) {
             $query->where('link_type', $request->link_type_filter);
         }
-        return DataTables::of($query)
-            ->editColumn('created_at', function($row){
-                return $row->created_at;
-            })
-            ->editColumn('host_url', function($row){
-                return '<a href="'. $row->website_url .'" target="_blank">' . $row->host_url . '</a>';
-            })
-            ->editColumn('da', function($row){
-                return $row->da;
-            })
-            ->editColumn('sample_post', function($row){
-                return $row->sample_post;
-            })
-            ->editColumn('country', function($row){
-                return $row->country;
-            })
-            ->editColumn('normal', function($row){
-                return $row->normal;
-            })
-            ->editColumn('other', function($row){
-                return $row->other;
-            })
-            ->editColumn('guest_post_price', function($row){
-                return $row->guest_post_price > 0 ? "$" . $row->guest_post_price : "-";
-            })
-            ->editColumn('linkinsertion_price', function($row){
-                return $row->linkinsertion_price > 0 ? "$" . $row->linkinsertion_price : "-";
-            })
-            ->addColumn('action', function($row){
-                return '<button class="add-to-cart" data-id="'.$row->id.'">Add to Cart</button>';
-            })
-            ->rawColumns(['host_url', 'sample_post', 'action'])
-            ->make(true);
+        
+        return $query;
     }
 }

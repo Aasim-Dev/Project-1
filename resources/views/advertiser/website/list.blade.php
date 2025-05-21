@@ -144,14 +144,13 @@
                 <div name="categories" id="categories" class="filter-group">
                     <label for="categories">Categories:</label>
                     <select id="categoryFilter" name="category_filter[]" class="categoryFilter" multiple>
-                        <option value="">All Categories</option>
-                        <option value="Health & Fitness">Health & Fitness</option>
+                        <option value="Health & Wellness">Health & Fitness</option>
                         <option value="Technology">Technology</option>
                         <option value="Agriculture">Agriculture</option>
                         <option value="Arts & Entertainment">Arts & Entertainment</option>
                         <option value="Beauty">Beauty</option>
                         <option value="Blogging">Blogging</option>
-                        <option value="Buisness">Buisness</option>
+                        <option value="Business">Business</option>
                         <option value="Career & Employment">Career & Employment</option>
                         <option value="Ecommerce">Ecommerce</option>
                         <option value="Web Development">Web Development</option>
@@ -160,7 +159,6 @@
                 <div class="filter-group" id="country" >
                     <label for="country">Country:</label>
                     <select class="countryFilter" name="country_filter[]" id="countryFilter" multiple>
-                        <option value="">All Countries</option>
                         <option value="United States">United States</option>
                         <option value="India">India</option>
                         <option value="United Kingdom">United Kingdom</option>
@@ -239,20 +237,37 @@
                 <table id="myTable">
                     <thead>
                         <tr>
-                            <th>Created At</th>
                             <th>Website</th>
                             <th>DA</th>
-                            <th>Sample Post</th>
+                            <th>Traffic</th>
+                            <th>Semrush</th>
                             <th>Country</th>
-                            <th>normal</th>
-                            <th>other</th>
-                            <th>guest_post_price</th>
-                            <th>linkinsertion_price</th>
+                            <th>Guest Post Price</th>
+                            <th>LinkInsertion Price</th>
                             <th>Action</th>
+                            <th><i class="fas fa-ellipsis-h"></i></th>
                         </tr>
                     </thead>
                     <tbody>
-                        
+                        @foreach($websites as $website)
+                            <tr>
+                                <td><a href="{{$website->website_url}}">{{ $website->host_url }}</a><br><small>Category: {{ $website->normal_category }}</small></td>
+                                <td>{{ $website->da }}</td>
+                                <td>{{ $website->ahref_traffic }}</td>
+                                <td>{{ $website->semrush }}</td>
+                                <td>{{ $website->country }}</td>
+                                <td>{{ $website->guest_post_price }}</td>
+                                <td>{{ $website->linkinsertion_price }}</td>
+                                <td><button class="add-to-cart" data-id="{{$website->id}}">+Add</button></td>
+                                <td >
+                                   <button class="views"
+                                    data-rating="{{ $website->domain_rating ?? 'NA' }}"
+                                    data-spam="{{ $website->spam_score ?? 'NA' }}"
+                                    data-lang="{{ $website->language ?? 'NA' }}"
+                                    data-guidelines="{{ $website->guidelines ?? 'NA' }}"><i class="fas fa-chevron-down"></i></button>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -276,68 +291,44 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
             });
-            $("#myTable").dataTable({
-                serverSide: true,
-                "paging": true,
-                "searching": true,
-                "lengthMenu": [25, 50],
-                "pageLength": 25,
-                stateSave: true,
-                order: [[2, 'desc']],
-                ajax: {
-                    url: "{{route('dataTable')}}",
-                    type: "POST",
-                    data: function(d) {
-                        d.min_da_filter = $('#daFilterMin').val();  
-                        d.max_da_filter = $('#daFilterMax').val();  
-                        d.category_filter = $('#categoryFilter').val();  
-                        d.min_price_filter = $('#priceFilterMin').val();  
-                        d.max_price_filter = $('#priceFilterMax').val();
-                        d.country_filter = $('#countryFilter').val();
-                        d.min_ahref_filter = $('#ahrefFilterMin').val();
-                        d.max_ahref_filter = $('#ahrefFilterMax').val();
-                        d.min_semrush_filter = $("#semrushFilterMin").val();
-                        d.max_semrush_filter = $("#semrushFilterMax").val();
-                        d.tat_filter = $('#tatFilter').val(); 
-                        d.language_filter = $('#languageFilter').val();
-                        d.min_dr = $('#minDr').val();
-                        d.max_dr = $('#maxDr').val();
-                        d.min_authority_filter = $('#min_authority_filter').val();
-                        d.max_authority_filter = $('#max_authority_filter').val();
-                        d.link_type_filter = $('input[name="link_type_filter"]:checked').val();
-                        //d.date_filter = $('#dateFilter').val();  
-                    }
-                },
-                columns: [
-                    {data: 'created_at', name: 'created_at'},
-                    {data: 'host_url', name: 'host_url'},
-                    {data: 'da', name: 'da'},
-                    {data: 'sample_post', name: 'sample_post'},
-                    {data: 'country', name: 'country'},
-                    {data: 'normal', name: 'normal'},
-                    {data: 'other', name: 'other'},
-                    {data: 'guest_post_price', name: 'guest_post_price'},
-                    {data: 'linkinsertion_price', name: 'linkinsertion_price'},
-                    {data: 'action', name: 'action', orderable: false, searchable: false}
-                ],
-                dom: 'Bfrtip', // Enables the buttons section
-                buttons: [
-                    {
-                        extend: 'excelHtml5',
-                        title: 'ExportedData', // Optional: Excel file name
-                        text: '<i class="fas fa-file-excel"></i>Export', // Button text
-                        className: 'btn btn-outline-success', // Optional: Bootstrap styling
-                        exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-                        },
-                    }
-                ],
-                columnDefs: [{
-                    targets: '_all',
-                    orderSequence: ['desc', 'asc'] 
-                }],
+            $('#myTable').DataTable({
+                
+                paging: true,
+                lengthMenu: [25, 50],
+                pageLength: 25,
+                
+                drawCallback: function () {
+                    $('.views').on('click', function () {
+                        toggleRow($(this)); 
+                    });
+
+                    // $('.views').each(function () {
+                    //     toggleRow($(this));
+                    // });
+                }
             });
 
+            // 🔄 Shared row toggle function
+            function toggleRow($button) {
+                const tr = $button.closest('tr');
+                const row = $('#myTable').DataTable().row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                } else {
+                    const html = `
+                        <div class="p-3 bg-white border rounded shadow-sm">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><strong>Domain Rating:</strong> ${$button.data('rating')}</li>
+                                <li class="mb-2"><strong>Spam Score:</strong> ${$button.data('spam')}</li>
+                                <li class="mb-2"><strong>Language:</strong> ${$button.data('lang')}</li>
+                                <li><strong>Guidelines:</strong> ${$button.data('guidelines')}</li>
+                            </ul>
+                        </div>
+                    `;
+                    row.child(html).show();
+                }
+            }
             $(".categoryFilter, .countryFilter, .languageFilter").select2({
                 placeholder: function() {
                     // Set dynamic placeholder based on element class
@@ -360,8 +351,46 @@
                 }
             });
             $('#applyFilters').on('click', function() {
-                var table = $('#myTable').DataTable();
-                table.ajax.reload();
+                let table = $('#myTable').DataTable();
+                let minDA = parseInt($('#daFilterMin').val()) || 0;
+                let maxDA = parseInt($('#daFilterMax').val()) || 100;
+                let selectedCategories = $('#categoryFilter').val();
+                let minPrice = parseFloat($('#priceFilterMin').val()) || 0;
+                let maxPrice = parseFloat($('#priceFilterMax').val()) || 10000;
+                let selectedCountry = $('#countryFilter').val();
+                let minAhref = parseInt($('#ahrefFilterMin').val()) || 0;
+                let maxAhref = parseInt($('#ahrefFilterMax').val()) || 10000000000;
+                let minSemrush = parseInt($('#semrushFilterMin').val()) || 0;
+                let maxSemrush = parseInt($('#semrushFilterMax').val()) || 10000000000;
+                let selectedTAT = $('#tatFilter').val();
+                let selectedLanguage = $('#languageFilter').val();
+                let minDR = parseInt($('#minDr').val()) || 0;
+                let maxDR = parseInt($('#maxDr').val()) || 100;
+                let minAuthority = parseInt($('#min_authority_filter').val()) || 0;
+                let maxAuthority = parseInt($('#max_authority_filter').val()) || 100;
+                let selectedLinkType = $('input[name="link_type_filter"]:checked').val();
+
+                table.rows().every(function () {
+                    let row = this.node();
+                    $(row).show(); 
+                });
+
+                table.rows().every(function () {
+                    let data = this.data(); 
+                    let da = parseInt(data[1]); 
+                    let country = data[4];
+                    let category = $(this.node()).find('small').text().replace('Category: ', '');
+
+                    let daValid = da >= minDA && da <= maxDA;
+                    let categoryValid = selectedCategories.length === 0 || selectedCategories.includes(category);
+                    let countryValid = selectedCountry.length === 0 || selectedCountry.includes(country);
+
+                    if (!(daValid && categoryValid && countryValid)) {
+                        $(this.node()).hide(); 
+                    }
+
+                });
+                table.draw();
             });
 
             // STEP 1: Load cart item IDs and update buttons

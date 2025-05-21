@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Order;
-use App\Models\Post;
+use App\Models\Website;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
@@ -14,7 +14,7 @@ class AdminController extends Controller
 {
     public function index(){
         $categories = Category::all();
-        $websites = Post::all();
+        $websites = Website::all();
         $orders = Order::all();
         $users = User::where('user_type', '!=', 'Admin')->get();
         return view('admin.dashboard', compact('categories', 'websites', 'orders', 'users'));
@@ -83,11 +83,11 @@ class AdminController extends Controller
         ]);
     
         //dd($request->all());
-        $idExists = DB::table('posts')->where('id', $request->id)->exists();
+        $idExists = DB::table('websites')->where('id', $request->id)->exists();
         //dd($idExists);
             if ($idExists) {
                 
-                DB::table('posts')
+                DB::table('websites')
                     ->where('id', $request->id)
                     ->update([
                         /*This is for database*/'website_url' => $request->website_url, /*This is for form*/  
@@ -100,7 +100,7 @@ class AdminController extends Controller
                         'updated_at' => now(), 
                     ]);
             } else {
-                Post::create([
+                Website::create([
                     'website_url' => $request->website_url,
                     'host_url'=> $request->host_url,
                     'da' => $request->da,
@@ -116,7 +116,7 @@ class AdminController extends Controller
     }
 
     public function post(){
-        $posts = Post::all();
+        $posts = Website::all();
         return view('admin.posts.index', compact('posts'));
     }
 

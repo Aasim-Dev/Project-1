@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Post;
+use App\Models\Website;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Wallet;
@@ -30,7 +30,7 @@ class PublisherController extends Controller
             ->value('balance');
             $totalBalance = $totalBalance ?? 0;
         }
-        $websites = Post::where('user_id', $user->id)->count('id');
+        $websites = Website::where('user_id', $user->id)->count('id');
         return view('publisher.dashboard', compact('user', 'orders', 'wallets', 'websites', 'totalBalance'));
     }
 
@@ -124,7 +124,7 @@ class PublisherController extends Controller
         return response()->json(['message' => 'Order status updated successfully.']);
     }
 
-    //for the create posts page
+    //for the create Websites page
     public function create(){
         $categories = Category::all();
         $normalCategories = Category::where('type', 'normal')->get();
@@ -146,7 +146,7 @@ class PublisherController extends Controller
     public function list(){
         //use below variable for declaration because if not declared here than the categories.list file will not be run.
         $user = Auth::user();
-        $posts = Post::all();
+        $posts = Website::all();
         $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
@@ -159,9 +159,9 @@ class PublisherController extends Controller
         }
         $user = auth()->user();
         if($user->user_type == "Admin"){
-            $posts = Post::all();
+            $posts = Website::all();
         }elseif($user->user_type == "Publisher"){
-            $posts = Post::/*with('category')->*/where('user_id', auth()->user()->id)->get();
+            $posts = Website::/*with('category')->*/where('user_id', auth()->user()->id)->get();
         }else{
             abort(403, 'Unauthorized Access');
         }   
@@ -183,7 +183,7 @@ class PublisherController extends Controller
         
         //dd($request->all());
         //dd($request->catenormal);
-        $idExists = DB::table('posts')->where('id', $request->id)->exists();
+        $idExists = DB::table('websites')->where('id', $request->id)->exists();
         if ($idExists) {
                 
                 DB::table('posts')
@@ -203,7 +203,7 @@ class PublisherController extends Controller
                 if(auth()->check()){
                     $user = optional(auth()->user())->email;
                     $url = $request->website_url;
-                    $url = parse_url($request->website_url);
+                    $url = preg_replace("/^https?:\/\/(www\.)?/", "", $request->website_url);
                     //dd($request->catenormal);
                     $cate = '';
                     if($request->catenormal){
@@ -216,7 +216,7 @@ class PublisherController extends Controller
                     $val1 = $request->normalGpPrice ?? $request->otherGpPrice;
                     $val2 = $request->normalLiPrice ?? $request->otherLiPrice;
                     //dd($val2, $val1);
-                    Post::create([
+                    Website::create([
                         'website_url' => $request->website_url,                   
                         'host_url' => $url['host'] ?? null, 
                         'da' => $request->da,
@@ -240,7 +240,7 @@ class PublisherController extends Controller
 
     public function destroy(Request $request)
     {
-        $post = Post::findOrFail($request->id);
+        $post = Website::findOrFail($request->id);
         $post->delete();
     
         return response()->json(['success' => 'Category deleted successfully.']);
