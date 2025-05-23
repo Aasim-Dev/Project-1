@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\WalletsExportMail;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -294,8 +295,12 @@ class AdminController extends Controller
             ->orderBy('wallets.id', 'DESC')
             ->get();
         //dd(strtotime('-24 hours', strtotime(date('Y-m-d H-i'))));
-        Mail::to('admin@gmail.com')->send(new WalletsExportMail($wallets));
-
-        return back()->with('success', 'Wallet data has been emailed to admin.'); 
+        try{
+            Mail::to('admin@gmail.com')->send(new WalletsExportMail($wallets));
+            return back()->with('success', 'Wallet data has been emailed to admin.'); 
+        }catch(\Exception $e){
+            Log::error('Error in Sending the mail' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to send a mail.');
+        }
     }
 }

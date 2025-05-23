@@ -127,4 +127,8 @@ class CartController extends Controller
             ], 404);
         }
     }
+
+    public function priceUpdate(Request $request){
+        return view('advertiser.cart.items');
+    }
 }

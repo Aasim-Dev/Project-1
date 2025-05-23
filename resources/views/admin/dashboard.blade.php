@@ -62,7 +62,6 @@
 @endsection
 
 @section('content')
-    <h2>Welcome to Admin DashBoard</h2> 
     <div class="dashboard-container">   
         <div class ="dashboard-box">
             <a href="{{route('categories.list')}}"><h2>Categories ({{$categories->count()}}): </h2>

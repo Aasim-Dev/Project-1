@@ -107,6 +107,7 @@ Route::post('/partner/api/price', [AdvertiserController::class, 'getPrice'])->na
     Route::post('/cart/update', [CartController::class, 'storeProvideContent'])->name('cart.content');
     Route::post('/cart/linkInsertion', [CartController::class, 'linkInsertion'])->name('cart.link');
     Route::post('/cart/hire', [CartController::class, 'hireContent'])->name('cart.hire');
+    Route::post('/cart/priceUpdate', [CartController::class, 'priceUpdate'])->name('priceUpdateAdv');
     
     //route for the categories to show dynamically.
     //Route::get('/publisher/website/create', [PublisherController::class, 'showCategories']);
