@@ -9,8 +9,8 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-// use Illuminate\Support\Facades\Auth;
-// use Illuminate\Http\Request;
+use App\Models\Wallet;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -82,9 +82,37 @@ class RegisterController extends Controller
         return view('auth.registerpartner');
     }
 
-    public function registerForm(Request $request){
+    public function showAdvertiserForm(){
+        return view('auth.registeradvertiser');
+    }
+
+    public function registerLP(Request $request){
         $this->validator($request->all())->validate();
 
+        event(new Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+        //dd($user->id);
+        Wallet::create([
+            'user_id' => $user->id,
+            'transaction_id' => Str::random(12),
+            'transaction_reference' => Str::random(12),
+            'order_type' => 'reward',
+            'description' => 'reward from the LP.',
+            'payment_status' => 'COMPLETED',
+            'payment_type' => 'reward',
+            'credit_debit' => 'credit',
+            'amount' => 50,
+            'total' => 50,
+        ]);
+
+        return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
+    }
+
+    public function registerForm(Request $request){
+        $this->validator($request->all())->validate();
+        //dd($request->name);
         event(new Registered($user = $this->create($request->all())));
 
         $this->guard()->login($user);

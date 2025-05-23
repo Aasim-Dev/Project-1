@@ -184,31 +184,33 @@
                 <th>Website</th>
                 <th>DA</th>
                 <th>Sample Post</th>
+                <th>AHREF Traffic</th>
+                <th>TaT</th>
                 <th>Country</th>
-                <th>normal_gp</th>
-                <th>normal_li</th>
-                <th>other_gp</th>
-                <th>other_li</th>
+                <th>Category</th>
+                <th>Guest Post Price</th>
+                <th>Link Insertion Price</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($posts as $post)
+            @foreach($posts as $post)    
                 <tr>
                     <td>{{ $post->created_at }}</td>
                     <td><a href="{{$post->website_url}}">{{ $post->host_url }}</a></td>
                     <td>{{ $post->da }}</td>
                     <td><a href="{{$post->website_url}}">{{ $post->sample_post }}</a></td>
+                    <td>{{ $post->ahref_traffic }}</td>
+                    <td>{{ $post->tat }}</td>
                     <td>{{ $post->country }}</td>
-                    <td>{{ ($post->normal_gp > 0) ? '$' . $post->normal_gp : '-' }}</td>
-                    <td>{{ ($post->normal_li > 0) ? '$' . $post->normal_li : '-' }}</td>
-                    <td>{{ ($post->other_gp > 0) ? '$' . $post->other_gp : '-' }}</td>
-                    <td>{{ ($post->other_li > 0) ? '$' . $post->other_li : '-' }}</td>
+                    <td>{{  $post->normal_category ?? $post->forbidden_category }}</td>
+                    <td>{{ ($post->guest_post_price > 0) ? '$' . $post->guest_post_price : '-' }}</td>
+                    <td>{{ ($post->linkinsertion_price > 0) ? '$' . $post->linkinsertion_price : '-' }}</td>
                     <td>
-                        <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
+                        <button class="btn-edit" data-id="{{ $post->id }}" data-website_url="{{$post->website_url}}" data-host_url="{{$post->host_url}}" data-da="{{$post->da}}" data-sample_post="{{$post->sample_post}}">Edit</button>
                         <button class="btn-delete" data-id="{{ $post->id }}">Delete</button>
                     </td>
-                </tr>       
+                </tr>
             @endforeach
         </tbody>
     </table>

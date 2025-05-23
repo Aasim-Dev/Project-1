@@ -66,7 +66,9 @@ Auth::routes(['verify' => true]);
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 //Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register/partner', [RegisterController::class, 'showPartnerForm'])->name('partner.register');
+Route::get('/register/LP2025', [RegisterController::class, 'showAdvertiserForm'])->name('lp2025.register');
 Route::post('/register/partner/submit', [RegisterController::class, 'registerForm'])->name('register.partner');
+Route::post('/register/LP2025/s', [RegisterController::class, 'registerLP'])->name('lp2025.reg');
 Route::get('/register/email-verify', [RegisterController::class, 'registered']);
 
 //AdminController Routes
@@ -74,6 +76,9 @@ Route::get('/admin/categories/list', [AdminController::class, 'list'])->name('ca
 Route::get('/admin/post/index', [AdminController::class, 'post'])->name('post.index');
 Route::get('/admin/order/list', [AdminController::class, 'showOrders'])->name('order.list');
 Route::post('/admin/order/data', [AdminController::class, 'orderData'])->name('adminsideorder.data');
+Route::get('/admin/transactions', [AdminController::class, 'showTransaction'])->name('transactions');
+Route::post('/admin/table', [AdminController::class, 'transactionTable'])->name('transaction.table');
+Route::post('/admin/exports', [AdminController::class, 'exportMail'])->name('export');
 
 //PublisherController Routes
 Route::get('/publisher/website/list', [PublisherController::class, 'list'])->name('website.list');

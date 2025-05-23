@@ -123,7 +123,7 @@
         }
 
         .balance-box {
-            background-color: #f26522;
+            background-color: #5122f20a;
             padding: 0.25rem 1rem;
             margin-left: 10px;
             border-radius: 5px;

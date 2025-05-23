@@ -89,7 +89,7 @@ class PublisherController extends Controller
                     'payment_status' => 'COMPLETED',
                     'credit_debit' => 'credit',
                     'amount' => $order->price,
-                    'total' => $totalBalance ,
+                    'total' => $totalBalance + $order->price ,
                     'updated_at' => now(),
                 ]);
                 return response()->json(['message' => 'Payment completed successfully.']);
@@ -114,7 +114,7 @@ class PublisherController extends Controller
                     'payment_status' => 'COMPLETED',
                     'credit_debit' => 'credit',
                     'amount' => $order->price,
-                    'total' => $totalBalance + $order->price,
+                    'total' => $wallets->total + $order->price,
                     'updated_at' => now(),
                 ]);
                 return response()->json(['message' => 'Refund completed successfully.']);
@@ -186,7 +186,7 @@ class PublisherController extends Controller
         $idExists = DB::table('websites')->where('id', $request->id)->exists();
         if ($idExists) {
                 
-                DB::table('posts')
+                DB::table('websites')
                     ->where('id', $request->id)
                     ->update([
                         /*This is for database*/'website_url' => $request->website_url, /*This is for form*/  

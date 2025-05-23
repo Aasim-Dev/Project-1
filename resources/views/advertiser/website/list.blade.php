@@ -234,6 +234,10 @@
                 <button id="applyFilters">Apply Filters</button>
             </div>
             <div id="marketplace-table">
+                <div class="guide-modal" style="display: none; position: fixed; top: 20%; left: 30%; width: 40%; background: white; padding: 20px; border: 1px solid #ccc; z-index: 9999;">
+                    <h1 style="color:green">Guidelines:</h1>
+                    <h4 class="guide-content"></h4>
+                </div>
                 <table id="myTable">
                     <thead>
                         <tr>
@@ -241,6 +245,7 @@
                             <th>DA</th>
                             <th>Traffic</th>
                             <th>Semrush</th>
+                            <th>TAT</th>
                             <th>Country</th>
                             <th>Guest Post Price</th>
                             <th>LinkInsertion Price</th>
@@ -255,15 +260,16 @@
                                 <td>{{ $website->da }}</td>
                                 <td>{{ $website->ahref_traffic }}</td>
                                 <td>{{ $website->semrush }}</td>
+                                <td>{{ $website->tat }}</td>
                                 <td>{{ $website->country }}</td>
                                 <td>{{ $website->guest_post_price }}</td>
                                 <td>{{ $website->linkinsertion_price }}</td>
                                 <td><button class="add-to-cart" data-id="{{$website->id}}">+Add</button></td>
                                 <td >
                                    <button class="views"
-                                    data-rating="{{ $website->domain_rating ?? 'NA' }}"
+                                    data-rating="{{ $website->dr ?? 'NA' }}"
                                     data-spam="{{ $website->spam_score ?? 'NA' }}"
-                                    data-lang="{{ $website->language ?? 'NA' }}"
+                                    data-lang="{{ $website->language ?? 'English' }}"
                                     data-guidelines="{{ $website->guidelines ?? 'NA' }}"><i class="fas fa-chevron-down"></i></button>
                                 </td>
                             </tr>
@@ -307,6 +313,12 @@
                     // });
                 }
             });
+            $(document).on('click', '.guide-btn', function(){
+                var guide = $(this).data('guide');
+                $('.guide-content').html(guide);
+                $('.guide-modal').fadeIn();
+                $('.guide-modal').fadeOut(8000);
+            });
 
             // 🔄 Shared row toggle function
             function toggleRow($button) {
@@ -322,7 +334,7 @@
                                 <li class="mb-2"><strong>Domain Rating:</strong> ${$button.data('rating')}</li>
                                 <li class="mb-2"><strong>Spam Score:</strong> ${$button.data('spam')}</li>
                                 <li class="mb-2"><strong>Language:</strong> ${$button.data('lang')}</li>
-                                <li><strong>Guidelines:</strong> ${$button.data('guidelines')}</li>
+                                <li><strong><button class="guide-btn" data-guide="${$button.data('guidelines')}">Guidelines</button></strong></li>
                             </ul>
                         </div>
                     `;
@@ -339,7 +351,6 @@
                 allowClear: true,
                 closeOnSelect: false
             });
-
 
             $(".categoryFilter").on("change", function() {
                 table.ajax.reload(); 
@@ -377,20 +388,30 @@
 
                 table.rows().every(function () {
                     let data = this.data(); 
-                    let da = parseInt(data[1]); 
-                    let country = data[4];
+                    let da = parseInt(data[1]);
+                    let dr = parseInt($(row).find('.views').data('rating'));
+                    let authority = parseInt($(row).find('.views').data('authority'));
+                    let spam = parseInt($(row).find('.views').data('spam'));
+                    let language =  $(row).find('.views').data('lanuage').text().replace('language: ', '');
+                    let tat = data[4];
+                    let country = data[5];
                     let category = $(this.node()).find('small').text().replace('Category: ', '');
 
                     let daValid = da >= minDA && da <= maxDA;
                     let categoryValid = selectedCategories.length === 0 || selectedCategories.includes(category);
                     let countryValid = selectedCountry.length === 0 || selectedCountry.includes(country);
-
-                    if (!(daValid && categoryValid && countryValid)) {
+                    let drValid = dr >= minDR && da <= maxDR;
+                    let tatValid = tat==selectedTAT;
+                    let authorityValid = authority >= minAuthority && authority <= maxAuthority;
+                    if (!(daValid && categoryValid && countryValid && drValid && authorityValid)) {
                         $(this.node()).hide(); 
                     }
 
                 });
                 table.draw();
+                $('.views').on('click', function () {
+                    toggleRow($(this)); 
+                });
             });
 
             // STEP 1: Load cart item IDs and update buttons

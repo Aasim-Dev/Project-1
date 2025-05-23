@@ -7,8 +7,13 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\Website;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WalletsExportMail;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -19,6 +24,19 @@ class AdminController extends Controller
         $users = User::where('user_type', '!=', 'Admin')->get();
         return view('admin.dashboard', compact('categories', 'websites', 'orders', 'users'));
     }
+
+    public function showTransaction(Request $request){
+        $wallet = Wallet::select('wallets.*', 'users.name as name', 'users.user_type as user_type')
+            ->join('users', 'users.id', '=', 'wallets.user_id')
+            ->orderBy('wallets.id', 'DESC')
+            ->get();
+        //dd($wallet);
+        foreach($wallet as $wal){
+            $role = $wal->user_type;
+        }
+        return view('admin.transactions', compact('wallet', 'role'));
+    }
+
     protected function storeCategory(Request $request){
             
             $request->validate([
@@ -148,18 +166,19 @@ class AdminController extends Controller
                 'publisher.name as publisher_name',
                 'advertiser.name as advertiser_name'
             )
-            ->join('posts', 'posts.id', '=', 'orders.website_id')
-            ->join('users as publisher', 'publisher.id', '=', 'posts.user_id') // Publisher
+            ->join('websites', 'websites.id', '=', 'orders.website_id')
+            ->join('users as publisher', 'publisher.id', '=', 'websites.user_id') // Publisher
             ->join('users as advertiser', 'advertiser.id', '=', 'orders.advertiser_id') // Advertiser
-            ->orderBy('orders.id', 'DESC');
+            ->orderBy('orders.id', 'DESC')->get();
         $search = $request->search['value'];
         if(isset($search)){
             $query->where(function($q) use ($search){
                 $q->where('host_url', 'like', "%{$search}%");
             });
         }
-        if ($request->has('status') && $request->status != '') {
-            $query->where('status', $request->status);
+        //dd($query);
+        if ($request->status) {
+            $query->where('status', '=', $request->status);
         }
 
         return DataTables::of($query)
@@ -199,5 +218,84 @@ class AdminController extends Controller
             })
             ->rawColumns(['host_url', 'action'])
             ->make(true);
+    }
+
+    public function transactionTable(Request $request){
+        $wallet = Wallet::select('wallets.*', 'users.name as name', 'users.user_type as user_type')
+            ->join('users', 'users.id', '=', 'wallets.user_id')
+            ->orderBy('wallets.id', 'DESC');
+        //dd($wallet);
+        //dd($request->role_filter);
+
+        $search = $request->search['value'] ?? null;
+        if(isset($search)){
+            $wallet->where(function($w) use ($search){
+                $w->where('users.name', 'like', "%{$search}%")
+                  ->orWhere('wallets.order_type', 'like', "%{$search}%");  
+            });
+        }
+        if($request->role_filter){
+            $wallet->where('users.user_type', '=', $request->role_filter);
+        }
+        if ($request->type_filter) {
+            $wallet->where('wallets.credit_debit', $request->type_filter);
+        }
+        if($request->id_filter){
+            $wallet->where('wallets.order_type', '=', $request->id_filter);
+        }
+        if($request->status_filter){
+            $wallet->where('wallets.payment_status', '=', $request->status_filter);
+        }
+        if ($request->from_date && $request->to_date) {
+            $wallet->whereBetween('wallets.created_at', [$request->from_date, $request->to_date]);
+        }
+
+
+        return DataTables::of($wallet)
+            ->editColumn('users.name', function($row){
+                return $row->name;
+            })
+            ->editColumn('role', function($row){
+                return $row->user_type;
+            })
+            ->editColumn('wallets.transaction_reference', function($row){
+                return $row->transaction_reference;
+            })
+            ->editColumn('wallets.order_type', function($row){
+                return $row->order_type;
+            })
+            ->editColumn('wallets.description', function($row){
+                return $row->description;
+            })
+            ->editColumn('wallets.payment_type', function($row){
+                return $row->payment_type;
+            })
+            ->editColumn('credit_debit', function($row){
+                if($row->credit_debit == 'credit'){
+                    return '<span style="color:green;">' . $row->credit_debit . '</span>';
+                }else{
+                    return '<span style="color:red;">' . $row->credit_debit . '</span>';
+                }
+            })
+            ->editColumn('wallets.amount', function($row){
+                return $row->amount;
+            })
+            ->editColumn('wallets.total', function($row){
+                return $row->total;
+            })
+            ->rawColumns(['credit_debit'])
+            ->make(true);
+    }
+
+    public function exportMail(Request $request){
+        $wallets = Wallet::select('wallets.*', 'users.name as name', 'users.user_type as user_type', 'users.email as email')
+            ->join('users', 'users.id', '=', 'wallets.user_id')
+            ->where('wallets.created_at', '>=', Carbon::now()->subDay())
+            ->orderBy('wallets.id', 'DESC')
+            ->get();
+        //dd(strtotime('-24 hours', strtotime(date('Y-m-d H-i'))));
+        Mail::to('admin@gmail.com')->send(new WalletsExportMail($wallets));
+
+        return back()->with('success', 'Wallet data has been emailed to admin.'); 
     }
 }

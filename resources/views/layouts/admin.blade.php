@@ -57,6 +57,7 @@
         <a href="{{ route('categories.list') }}">Categories</a>
         <a href="{{ route('post.index') }}">Website</a>
         <a href="{{ route('order.list') }}">Orders</a>
+        <a href="{{ route('transactions') }}">Transactions</a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="">
             @csrf
             <button  id="logout" name="logout">Logout</button>
