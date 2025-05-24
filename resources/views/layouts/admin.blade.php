@@ -69,9 +69,9 @@
     <!-- Main Content -->
     <div class="content">
         <!-- Header -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-light bg-light">
             <div class="container-fluid">
-                <span class="navbar-brand"><h1>@yield('title')</h1></span>
+                <span class="navbar-brand"><h6>@yield('title')</h6></span>
             </div>
         </nav>
 

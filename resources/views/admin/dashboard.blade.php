@@ -83,11 +83,6 @@
         </div>
         <div class ="dashboard-box">
             <a href="{{route('order.list')}}"><h2>Orders ({{$orders->count()}}):</h2>
-            <!-- <ul>
-                @foreach($orders as $order)
-                    <li>{{ $order->purpose }}</li>
-                @endforeach 
-            </ul> -->
             </a>
         </div>
         <div class ="dashboard-box">

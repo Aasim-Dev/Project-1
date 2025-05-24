@@ -216,9 +216,11 @@
             });
             $(document).on('click', '.filter', function(){
                 $('.filter-modal').toggle();
+                $('.dateFilter-modal').hide();
             });
             $(document).on('click', '.date-filter', function(){
                 $('.dateFilter-modal').toggle();
+                $('.filter-modal').hide();
             });
             $('.applyFilters, .date-btn').on('click', function() {
                 var table = $('.myTable').DataTable();

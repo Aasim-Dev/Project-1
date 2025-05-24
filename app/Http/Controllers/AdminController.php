@@ -19,9 +19,9 @@ use Illuminate\Support\Facades\Log;
 class AdminController extends Controller
 {
     public function index(){
-        $categories = Category::all();
-        $websites = Website::all();
-        $orders = Order::all();
+        $categories = DB::table('categories')->get();
+        $websites =DB::table('websites')->get();
+        $orders = DB::table('orders')->get();
         $users = User::where('user_type', '!=', 'Admin')->get();
         return view('admin.dashboard', compact('categories', 'websites', 'orders', 'users'));
     }
@@ -109,7 +109,7 @@ class AdminController extends Controller
                 DB::table('websites')
                     ->where('id', $request->id)
                     ->update([
-                        /*This is for database*/'website_url' => $request->website_url, /*This is for form*/  
+                        'website_url' => $request->website_url, 
                         'host_url'=> $request->host_url,
                         'da' => $request->da,
                         'sample_post' => $request->sample_post,
@@ -140,11 +140,11 @@ class AdminController extends Controller
     }
 
     public function showOrders(){
-        $orders = Order::all();
-        $new = Order::where('status', 'new')->count();
-        $in_progress = Order::where('status', 'in_progress')->count();
-        $completed = Order::where('status', 'complete')->count();
-        $reject = Order::where('status', 'reject')->count();
+        $orders = DB::table('orders')->get();
+        $new = DB::table('orders')->where('status', 'new')->count();
+        $in_progress = DB::table('orders')->where('status', 'in_progress')->count();
+        $completed = DB::table('orders')->where('status', 'complete')->count();
+        $reject = DB::table('orders')->where('status', 'reject')->count();
         return view('admin.orders.list', compact('orders', 'new', 'in_progress', 'completed', 'reject'));
     }
 
@@ -153,7 +153,7 @@ class AdminController extends Controller
             'id'=> ['required', 'exists:orders,id'],
             'status' => ['required', 'string', 'in:approved,rejected']
         ]);
-        $order = Order::findorFail($request->id);
+        $order = DB::table('orders')->findorFail($request->id);
         $order->status = $request->status;
         $order->save();
 
@@ -161,7 +161,6 @@ class AdminController extends Controller
     }
 
      public function orderData(Request $request){
-        $query = Order::query();
         $query = Order::select(
                 'orders.*',
                 'publisher.name as publisher_name',
@@ -177,7 +176,7 @@ class AdminController extends Controller
                 $q->where('host_url', 'like', "%{$search}%");
             });
         }
-        //dd($query);
+        //dd($request->status);
         if ($request->status) {
             $query->where('status', '=', $request->status);
         }
@@ -211,7 +210,7 @@ class AdminController extends Controller
             ->editColumn('tat', function($row){
                 return $row->tat;
             })
-            ->addColumn('status', function($row){
+            ->editColumn('status', function($row){
                 return $row->status;
             })
             ->addColumn('action', function($row){
@@ -225,14 +224,16 @@ class AdminController extends Controller
         $wallet = Wallet::select('wallets.*', 'users.name as name', 'users.user_type as user_type')
             ->join('users', 'users.id', '=', 'wallets.user_id')
             ->orderBy('wallets.id', 'DESC');
-        //dd($wallet);
-        //dd($request->role_filter);
 
         $search = $request->search['value'] ?? null;
         if(isset($search)){
             $wallet->where(function($w) use ($search){
                 $w->where('users.name', 'like', "%{$search}%")
-                  ->orWhere('wallets.order_type', 'like', "%{$search}%");  
+                  ->orWhere('wallets.order_type', 'like', "%{$search}%")
+                  ->orWhere('wallets.credit_debit', 'like', "%{$search}%")
+                  ->orWhere('wallets.payment_type', 'like', "%{$search}%")
+                  ->orWhere('wallets.transaction_reference', 'like', "%{$search}%")
+                  ->orWhere('wallets.amount', 'like', "%{$search}%");  
             });
         }
         if($request->role_filter){
@@ -278,13 +279,17 @@ class AdminController extends Controller
                     return '<span style="color:red;">' . $row->credit_debit . '</span>';
                 }
             })
-            ->editColumn('wallets.amount', function($row){
-                return $row->amount;
+            ->editColumn('amount', function($row){
+                if($row->credit_debit == 'credit'){
+                    return '<span style="color:green;">' . $row->amount . '</span>';
+                }else{
+                    return '<span style="color:red;">' . $row->amount . '</span>';
+                }
             })
-            ->editColumn('wallets.total', function($row){
-                return $row->total;
+            ->editColumn('total', function($row){
+                return '$' . $row->total;
             })
-            ->rawColumns(['credit_debit'])
+            ->rawColumns(['credit_debit', 'amount'])
             ->make(true);
     }
 

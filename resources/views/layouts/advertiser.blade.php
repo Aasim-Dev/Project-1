@@ -317,6 +317,7 @@
                 <a href="{{route('advertiser.dashboard')}}" class="nav-link">Dashboard</a>
                 <a href="{{route('website.lists')}}" class="nav-link">Marketplace</a>
                 <a href="{{route('orders.list')}}" class="nav-link">My Orders</a>
+                <a href="{{route('urlChecker')}}" class="nav-link">BLS TOOL</a>
                 @if(Auth::user()->register_from === 'partner')
                 <a href="{{route('api')}}" class="nav-link">API</a>
                 @endif

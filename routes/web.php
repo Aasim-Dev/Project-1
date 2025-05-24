@@ -97,6 +97,8 @@ Route::post('/wallet/paypal', [WalletController::class, 'handlePayPalPayment'])-
 Route::get('/wallet/paypal/success', [WalletController::class, 'handlePayPalSuccess'])->name('wallet.paypal.success');
 Route::get('/wallet/paypal/cancel', [WalletController::class, 'handlePayPalCancel'])->name('wallet.paypal.cancel');
 Route::post('/partner/api/price', [AdvertiserController::class, 'getPrice'])->name('checkPrice');
+Route::get('/advertiser/blstool', [AdvertiserController::class, 'urlCheck'])->name('urlChecker');
+Route::post('/advertiser/urlPost', [AdvertiserController::class, 'urlCheckSave'])->name('urlCheck.save');
 
 
 //route for category type::

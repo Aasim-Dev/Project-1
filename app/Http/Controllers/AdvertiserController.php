@@ -12,6 +12,7 @@ use App\Services\GoogleSheetServices;
 use Illuminate\Support\Str;
 use DB;
 use \Cache;
+use App\Models\UrlChecker;
 
 class AdvertiserController extends Controller
 {
@@ -367,6 +368,39 @@ class AdvertiserController extends Controller
                 'linkinsertion_price' => $website->linkinsertion_price,
             ]);
         }
+    }
+
+    public function urlCheck(){
+        $user = Auth::user();
+        $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
+        if($wallet){
+            $totalBalance = Wallet::where('user_id', $user->id)
+            ->selectRaw("
+                SUM(CASE WHEN credit_debit = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN credit_debit = 'debit' THEN amount ELSE 0 END) AS balance
+            ")
+            ->value('balance');
+            $totalBalance = $totalBalance ?? 0;
+        }
+        $checker = UrlChecker::where('checked', 0)->get();
+        $checkers = UrlChecker::where('checked', 1)->get();
+        return view('advertiser.urlChecker', compact('totalBalance', 'checker', 'checkers'));
+    }
+
+    public function urlCheckSave(Request $request){
+        $user = Auth::user();
+        //dd($request->urls);
+        $urls = $request->urls;
+        foreach($urls as $url){
+            $check = UrlChecker::create([
+                'user_id' => $user->id,
+                'url' => $url,
+                'batch_id' => Str::uuid(),
+            ]);
+        }
+        $checker = UrlChecker::where('checked', 1)->get();
+        $checkers = UrlChecker::where('checked', 1)->get();
+        return view('advertiser.urlChecker', compact('checker', 'checkers'));
     }
 }
 
