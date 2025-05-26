@@ -245,7 +245,7 @@
                 var orderId = $(this).data('id');
                 var websiteId = $(this).data('website-id');
                 //$("#box").reset();
-                $("#chatModal").modal('show');
+                $("#chatModal").show();
                 $("#chatModalLabel").text("Order ID: #" + websiteId);
             });
 

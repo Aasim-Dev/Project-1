@@ -85,24 +85,15 @@
 </div>
 
 <div>
-    @if($checker != null && $checker == '')
+    @if(!empty($checkers))
     <table>
         <tr>
-            <th>URL</th>
-        </tr>
-        @foreach($checker as $check)
-        <tr>
-            <td>{{$check->url}}</td>
-        </tr>
-        @endforeach
-    </table>
-    @elseif($checkers != null && $checkers == '')
-    <table>
-        <tr>
+            <th>Checked</th>
             <th>URL</th>
         </tr>
         @foreach($checkers as $check)
         <tr>
+            <td>{{($check->checked == 1) ? 'Checked' : 'unCheck' }}</td>
             <td>{{$check->url}}</td>
         </tr>
         @endforeach
@@ -114,6 +105,7 @@
 
 @section('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script>
@@ -130,10 +122,11 @@
                 url = url.replace(/\/+$/, '');
                 return url;
             }
+
             $('#my-form').on('submit', function(e) {
                 e.preventDefault();
                 let input = $('#url-check').val();
-                let rawUrlsCheck = input.split(/[\r\n,]+/); // Split on comma or newline
+                let rawUrlsCheck = input.split(/[\r\n,]+/); 
                 let trimmedUrls = rawUrlsCheck.map(url => url.trim()).filter(url => url.length > 0);
 
                 let normalizedSet = new Set();
@@ -160,19 +153,13 @@
                         data: {
                             urls: normalizedUrlCheck,
                         },
-                        success: function(){
-                            $("my-form").trigger('reset');
+                        success: function(response){
+                            if(response.status == 'success'){
+                                $("#my-form").trigger('reset');
+                            }
                         },
                     });
                 }
-
-                $("#my-form").validate({
-                    rules: {
-                        url_check: {
-                            required: true,
-                        },
-                    },
-                });
             });
         });
     </script>

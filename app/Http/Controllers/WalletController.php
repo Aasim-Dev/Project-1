@@ -15,7 +15,7 @@ class WalletController extends Controller
         $user = Auth::user();
         $orders = Order::where('advertiser_id', $user->id)->get();
         $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);
-        $totalCredit = $wallet->where('credit_debit', 'credit')->where('order_type', 'add_fund')->sum('amount');
+        $totalCredit = $wallet->where('credit_debit', 'credit')->whereIn('order_type', ['add_fund', 'reward'])->sum('amount');
         if($wallet){
             $totalBalance = Wallet::where('user_id', $user->id)
             ->selectRaw("

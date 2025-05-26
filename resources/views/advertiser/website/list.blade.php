@@ -245,7 +245,6 @@
                             <th>DA</th>
                             <th>Traffic</th>
                             <th>Semrush</th>
-                            <th>TAT</th>
                             <th>Country</th>
                             <th>Guest Post Price</th>
                             <th>LinkInsertion Price</th>
@@ -260,7 +259,6 @@
                                 <td>{{ $website->da }}</td>
                                 <td>{{ $website->ahref_traffic }}</td>
                                 <td>{{ $website->semrush }}</td>
-                                <td>{{ $website->tat }}</td>
                                 <td>{{ $website->country }}</td>
                                 <td>{{ $website->guest_post_price }}</td>
                                 <td>{{ $website->linkinsertion_price }}</td>
@@ -389,21 +387,15 @@
                 table.rows().every(function () {
                     let data = this.data(); 
                     let da = parseInt(data[1]);
-                    let dr = parseInt($(row).find('.views').data('rating'));
-                    let authority = parseInt($(row).find('.views').data('authority'));
-                    let spam = parseInt($(row).find('.views').data('spam'));
-                    let language =  $(row).find('.views').data('lanuage').text().replace('language: ', '');
-                    let tat = data[4];
-                    let country = data[5];
+                    let authority = parseInt(data[1]); 
+                    let country = data[4];
                     let category = $(this.node()).find('small').text().replace('Category: ', '');
 
                     let daValid = da >= minDA && da <= maxDA;
                     let categoryValid = selectedCategories.length === 0 || selectedCategories.includes(category);
                     let countryValid = selectedCountry.length === 0 || selectedCountry.includes(country);
-                    let drValid = dr >= minDR && da <= maxDR;
-                    let tatValid = tat==selectedTAT;
-                    let authorityValid = authority >= minAuthority && authority <= maxAuthority;
-                    if (!(daValid && categoryValid && countryValid && drValid && authorityValid)) {
+
+                    if (!(daValid && categoryValid && countryValid)) {
                         $(this.node()).hide(); 
                     }
 

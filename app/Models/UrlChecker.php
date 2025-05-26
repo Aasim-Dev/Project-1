@@ -13,5 +13,6 @@ class UrlChecker extends Model
         'user_id',
         'url',
         'checked',
+        'batch_id',
     ];
 }

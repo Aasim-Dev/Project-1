@@ -31,7 +31,7 @@ class AdvertiserController extends Controller
             $totalBalance = $totalBalance ?? 0;
         }
 
-        return view('advertiser.dashboard', compact('user', 'wallet', 'orders'));
+        return view('advertiser.dashboard', compact('user', 'wallet', 'orders', 'totalBalance'));
     }
 
     public function apiPage(){
@@ -382,25 +382,23 @@ class AdvertiserController extends Controller
             ->value('balance');
             $totalBalance = $totalBalance ?? 0;
         }
-        $checker = UrlChecker::where('checked', 0)->get();
-        $checkers = UrlChecker::where('checked', 1)->get();
-        return view('advertiser.urlChecker', compact('totalBalance', 'checker', 'checkers'));
+        $checkers = UrlChecker::where('user_id', $user->id)->get();
+        return view('advertiser.urlChecker', compact('totalBalance', 'checkers'));
     }
 
     public function urlCheckSave(Request $request){
         $user = Auth::user();
         //dd($request->urls);
         $urls = $request->urls;
+        $batchId = Str::random(5);
         foreach($urls as $url){
             $check = UrlChecker::create([
                 'user_id' => $user->id,
                 'url' => $url,
-                'batch_id' => Str::uuid(),
+                'batch_id' => $batchId,
             ]);
         }
-        $checker = UrlChecker::where('checked', 1)->get();
-        $checkers = UrlChecker::where('checked', 1)->get();
-        return view('advertiser.urlChecker', compact('checker', 'checkers'));
+        return response()->json(['status' => 'success']);
     }
 }
 
