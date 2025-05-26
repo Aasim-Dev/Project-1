@@ -7,63 +7,106 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/publisher.css') }}">
     @yield('styles')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            display: flex;
-            height: 100vh;
             margin: 0;
+            display: flex;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            height: 100vh;
             overflow-x: hidden;
         }
 
         .sidebar {
             width: 250px;
-            background: #343a40;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
             color: white;
-            padding-top: 20px;
-            height: 100vh;
+            padding: 30px 0;
             position: fixed;
+            height: 100%;
             left: 0;
             top: 0;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+            z-index: 999;
         }
 
         .sidebar h2 {
-            color: white;
             text-align: center;
             margin-bottom: 20px;
+            font-size: 22px;
         }
 
         .sidebar ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .sidebar ul li {
-            padding: 15px 20px;
+            margin: 10px 0;
         }
 
         .sidebar ul li a {
-            color: white;
+            color: #ecf0f1;
             text-decoration: none;
             display: block;
-            transition: 0.3s;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
         }
 
         .sidebar ul li a:hover {
-            background: #34495e;
+            background: #1abc9c;
+            padding-left: 30px;
             border-radius: 5px;
         }
 
-        .content {
-            margin-left: 250px; /* Prevent overlap */
-            width: calc(100% - 250px);
-            padding: 20px;
+        .sidebar ul li h5 {
+            text-align: center;
+            margin-top: 5px;
+            color: #bdc3c7;
         }
-    
+
+        #logout-form {
+            padding: 0 20px;
+            margin-top: 20px;
+        }
+
+        #logout {
+            width: 100%;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #logout:hover {
+            background: #c0392b;
+        }
+
+        .content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
         .header {
-            background: #ffffff;
-            padding: 15px;
+            background: #fff;
+            padding: 15px 25px;
+            margin-bottom: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -75,49 +118,25 @@
             color: #2c3e50;
         }
 
-        #logout-form{
-            color: red;
-            display: REM absolute;
-            padding: 0px 0px;
-            cursor: pointer;
-            font-size: 6px;
-        }
-
-        .logout {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        .logout:hover {
-            background: #c0392b;
-        }
-
-        .footer {
-            background: #f8f9fa;
-            padding: 10px;
-            text-align: center;
-        }
         .dashboard-cards {
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
-            margin-top: 20px;
         }
 
         .card {
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
             flex: 1;
             min-width: 250px;
+            transition: transform 0.2s ease-in-out;
             text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
         }
 
         .card h3 {
@@ -129,6 +148,15 @@
         .card p {
             font-size: 14px;
             color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
         }
 
         @media (max-width: 768px) {
@@ -136,12 +164,30 @@
                 width: 200px;
             }
 
-            .main-content {
-                margin-left: 210px;
+            .content {
+                margin-left: 200px;
+                padding: 20px;
             }
 
             .dashboard-cards {
                 flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 18px;
             }
         }
     </style>

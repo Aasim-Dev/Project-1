@@ -13,111 +13,166 @@
         background-color: #f4f6f8;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;    
-        -ms-user-select: none; 
     }
 
-    /* Main Container */
     #marketplace-container {
         display: flex;
         gap: 20px;
         padding: 20px;
         flex-wrap: wrap;
         background-color: #f9f9f9;
-        font-family: Arial, sans-serif;
     }
 
-    /* Filters Section */
     #marketplace-filters {
         flex: 1 1 300px;
         max-width: 350px;
         padding: 20px;
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        animation: fadeInLeft 0.6s ease-in-out;
     }
 
     #marketplace-filters h1 {
-        font-size: 20px;
-        margin-bottom: 15px;
-        color: #333;
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #2c3e50;
     }
 
-    /* Individual filter group */
     .filter-group {
-        margin-bottom: 15px;
+        margin-bottom: 18px;
         display: flex;
         flex-direction: column;
     }
 
     .filter-group label {
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #555;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #34495e;
     }
 
     .filter-group input,
     .filter-group select {
-        padding: 8px;
+        padding: 10px;
         font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
     }
 
     .filter-group select[multiple] {
         height: auto;
-        min-height: 80px;
+        min-height: 90px;
     }
 
-    /* Apply Button */
     #applyFilters {
-        padding: 10px 15px;
-        background-color: #3498db;
-        color: white;
-        font-weight: bold;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: #fff;
+        font-weight: 600;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
-        margin-top: 10px;
-        transition: background-color 0.2s ease;
+        transition: background 0.3s ease;
     }
 
     #applyFilters:hover {
-        background-color: #2980b9;
+        background: linear-gradient(135deg, #2980b9, #2471a3);
     }
 
-    /* Table Section */
     #marketplace-table {
         flex: 3 1 600px;
         overflow-x: auto;
-        background: #fff;
+        background: #ffffff;
         padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        animation: fadeInRight 0.6s ease-in-out;
     }
 
-    /* DataTable Styling */
     #myTable {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     #myTable th,
     #myTable td {
-        padding: 10px;
+        padding: 12px 15px;
         text-align: left;
         border-bottom: 1px solid #eee;
     }
 
     #myTable th {
-        background-color: #f1f1f1;
-        font-weight: bold;
-        color: #444;
+        background: #ecf0f1;
+        font-weight: 700;
+        color: #2c3e50;
     }
 
-    /* Responsive Adjustments */
+    .add-to-cart {
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: #2ecc71;
+        color: white;
+        font-size: 13px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .add-to-cart:hover {
+        background: #27ae60;
+    }
+
+    .views {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #2980b9;
+        transition: transform 0.3s ease;
+    }
+
+    .views:hover {
+        transform: scale(1.1);
+    }
+
+    .guide-modal {
+        display: none;
+        position: fixed;
+        top: 20%;
+        left: 30%;
+        width: 40%;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        z-index: 9999;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
     @media (max-width: 768px) {
         #marketplace-container {
             flex-direction: column;
@@ -128,7 +183,6 @@
             max-width: 100%;
         }
     }
-
 </style>
 @endsection
 
@@ -414,7 +468,7 @@
                     const websiteId = $(this).data('id').toString();
 
                     if (cartItems.includes(websiteId)) {
-                        $(this).text("Remove from Cart").css("background-color", "#e74c3c");
+                        $(this).text("Remove").css("background-color", "#e74c3c");
                     }
                 });
 
@@ -435,9 +489,9 @@
                     },
                     success: function(response){
                         if (response.status === 'success') {
-                            button.text("Remove from Cart").css("background-color", "#e74c3c");
+                            button.text("Remove").css("background-color", "#e74c3c");
                         } else if (response.status === 'removed') {
-                            button.text("Add to Cart").css("background-color", "#2ecc71");
+                            button.text("+Add").css("background-color", "#2ecc71");
                         }
                         updateCartCount(); // Update the count on toggle
                     },

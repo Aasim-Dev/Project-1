@@ -15,37 +15,44 @@
         gap: 15px;
         flex-wrap: wrap;
         align-items: center;
+        position: relative;
     }
 
     .transaction-data button {
         padding: 8px 16px;
         border: none;
-        border-radius: 6px;
-        background-color: #007bff;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #3498db, #2980b9);
         color: white;
+        font-weight: 600;
         cursor: pointer;
-        transition: 0.3s ease;
+        transition: background 0.3s ease;
     }
 
     .transaction-data button:hover {
-        background-color: #0056b3;
+        background: linear-gradient(135deg, #2980b9, #2471a3);
     }
 
     .filter-modal {
-        background-color: #f8f9fa;
-        padding: 20px;
+        background-color: #ffffff;
+        padding: 15px;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-top: 15px;
+        border-radius: 10px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        width: 250px;
         display: none;
-        width: 40%;
-        max-width: 200px;
+        z-index: 10;
     }
 
     .filter-modal label {
         display: block;
-        font-weight: bold;
+        font-weight: 600;
         margin-top: 10px;
+        color: #34495e;
     }
 
     .filter-modal select,
@@ -54,12 +61,16 @@
         padding: 8px;
         margin-top: 5px;
         border: 1px solid #ccc;
-        border-radius: 5px;
+        border-radius: 6px;
     }
 
     .filter-modal .applyFilters {
         margin-top: 15px;
         background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
     }
 
     .transaction-table {
@@ -67,7 +78,7 @@
     }
 
     table.dataTable thead th {
-        background-color: #343a40;
+        background-color: #2c3e50;
         color: white;
     }
 
@@ -97,8 +108,6 @@
         <button class="date-btn">Submit</button>
     </div>
     <div class="filter-modal" style="display:none">
-        <button class="close-guide" style="float: right;">✖</button>
-
         <label for="roleFilter">Role Filter</label>
         <select name="roleFilter" id="roleFilter">
             <option value="">select</option>

@@ -11,7 +11,7 @@ use App\Models\User;
 
 class WalletController extends Controller
 {
-    public function index(){
+    public function index() {
         $user = Auth::user();
         $orders = Order::where('advertiser_id', $user->id)->get();
         $wallet = Wallet::where('payment_status', 'COMPLETED')->where('user_id', $user->id);

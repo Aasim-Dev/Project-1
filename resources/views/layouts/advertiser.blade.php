@@ -10,141 +10,90 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     @yield('styles')
     <style>
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-         body {
-            background-color: #ffffff;
-         }
-         .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 100vw;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
-        .modal {
-            background: #ffffff;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 500px;
-            animation: fadeInScale 0.3s ease-in-out;
-        }
-
+        /* ANIMATIONS */
         @keyframes fadeInScale {
-            from {
+            0% {
                 opacity: 0;
                 transform: scale(0.9);
             }
-            to {
+            100% {
                 opacity: 1;
                 transform: scale(1);
             }
         }
 
-        .modal h2 {
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            color: #333;
-            text-align: center;
+        @keyframes slideInFromTop {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
 
-        label {
-            margin-top: 1rem;
-            margin-bottom: 0.3rem;
-            font-weight: 600;
-            color: #444;
-        }
-
-        input[type="text"],
-        select {
-            padding: 0.6rem 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="text"]:focus,
-        select:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        button#submit {
-            margin-top: 1.5rem;
-            padding: 0.75rem;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button#submit:hover {
-            background-color: #0056b3;
-        }
         .top-navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #45364b;
+            background-color: #34495e;
             padding: 0.75rem 1.5rem;
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            animation: slideInFromTop 0.5s ease;
+            z-index: 10;
         }
 
-        .navbar-left,
-        .navbar-middle,
-        .navbar-right {
+        .navbar-left, .navbar-middle, .navbar-right {
             display: flex;
             align-items: center;
-        }
-
-        .logo i {
-            font-size: 1.5rem;
-            background: #45364b;
-            padding: 0.5rem;
-            border-radius: 50%;
         }
 
         .balance-box {
-            background-color: #5122f20a;
-            padding: 0.25rem 1rem;
-            margin-left: 10px;
-            border-radius: 5px;
-            text-align: center;
+            background-color: #2d4c8273;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            animation: pulse 3s infinite ease-in-out;
         }
 
         .balance-box .balance {
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: block;
+            font-size: 1.3rem;
+            font-weight: 700;
         }
 
         .add-funds {
-            font-size: 0.85rem;
-            color: white;
-            font-weight: 600;
-            text-decoration: none;
+            margin-top: 0.2rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 4px;
+            gap: 5px;
+            font-size: 0.85rem;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .add-funds:hover {
+            color:rgba(162, 242, 34, 0.94);
         }
 
         .navbar-middle {
@@ -153,57 +102,44 @@
             gap: 1rem;
         }
 
-        .navbar-middle .brand-name {
-            font-weight: bold;
-            margin-right: 1rem;
-        }
-
         .nav-link {
             color: white;
-            text-decoration: none;
             font-weight: 500;
-            transition: 0.3s;
-            position: relative;
-            padding: 5px 8px;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .nav-link:hover{
-            color: #f26522;
-        }
-
-        .menu-icon {
-            margin-right: 1rem;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .navbar-right {
-            gap: 1rem;
+        .nav-link:hover {
+            background-color: #fff;
+            color: #45364b;
         }
 
         .icon-button {
             position: relative;
+            margin-right: 1rem;
             cursor: pointer;
         }
 
         .icon-button i {
             font-size: 1.2rem;
+            color: white;
         }
 
         .badge {
             position: absolute;
-            top: -6px;
+            top: -5px;
             right: -10px;
-            background-color: #f266f222;
+            background: #22abf2;
             color: white;
             font-size: 0.7rem;
             border-radius: 50%;
-            padding: 2px 5px;
+            padding: 2px 6px;
         }
 
         .profile-dropdown {
             position: relative;
-            display: inline-block;
         }
 
         .profile-button {
@@ -213,24 +149,24 @@
         }
 
         .profile-pic {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            object-fit: cover;
             margin-right: 8px;
         }
 
         .dropdown-menu {
             display: none;
             position: absolute;
-            right: 0;
             top: 100%;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            min-width: 140px;
             padding: 10px;
             z-index: 100;
-            border-radius: 8px;
-            min-width: 120px;
+            animation: fadeInScale 0.3s ease;
         }
 
         .dropdown-menu.active {
@@ -240,19 +176,84 @@
         .dropdown-menu button {
             background: none;
             border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            color: #333;
             width: 100%;
+            padding: 8px 10px;
             text-align: left;
+            color: #333;
+            font-size: 0.95rem;
+            border-radius: 4px;
         }
 
         .dropdown-menu button:hover {
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
         }
 
-        .footer{
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            max-width: 500px;
+            width: 100%;
+            animation: fadeInScale 0.3s ease-in-out;
+        }
+
+        .modal h2 {
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        label {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 0.3rem;
+            font-size: 1rem;
+        }
+
+        button#rzp-button {
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background-color: #007bff;
             color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button#rzp-button:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            text-align: center;
+            color: #aaa;
+            padding: 1rem;
         }
 
         @media screen and (max-width: 768px) {
@@ -312,12 +313,12 @@
             </div>
 
             <div class="navbar-middle">
-                <i class="fas fa-bars menu-icon"></i>
+                <!-- <i class="fas fa-bars menu-icon"></i> -->
                 <!-- <span class="brand-name">Lowprice <i class="fas fa-caret-down"></i></span> -->
                 <a href="{{route('advertiser.dashboard')}}" class="nav-link">Dashboard</a>
                 <a href="{{route('website.lists')}}" class="nav-link">Marketplace</a>
                 <a href="{{route('orders.list')}}" class="nav-link">My Orders</a>
-                <a href="{{route('urlChecker')}}" class="nav-link">Url Checker TOOL</a>
+                <a href="{{route('urlChecker')}}" class="nav-link">Backlink Checker</a>
                 @if(Auth::user()->register_from === 'partner')
                 <a href="{{route('api')}}" class="nav-link">API</a>
                 @endif
@@ -389,11 +390,14 @@
                 $('#dropdownMenu').toggleClass('active');
             });
             $(document).on('click', '.add-funds', function(){
+                $('.overlay').css({ display: 'flex' }).animate({ opacity: 1 }, 300).css('visibility', 'visible');
                 $('.overlay').show();
             });
             $(".overlay").click(function(e){
                 if(e.target.classList.contains("overlay")){
-                    $(".overlay").fadeOut();
+                    $(".overlay").animate({ opacity: 0 }, 300, function(){
+                        $(this).css({ display: 'none', visibility: 'hidden' });
+                    });
                 }
             });
             $('#rzp-button').on('click', function () {

@@ -77,6 +77,7 @@
 
 <div class="container">
     <form id="my-form">
+    @csrf
         <label for="url">Enter your URL's:</label>
         <textarea name="url_check" id="url-check" rows="15" class="form-control" autofocus></textarea>
         <p id="error-msg"></p>
@@ -104,10 +105,12 @@
 @endsection
 
 @section('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.5/jquery.validate.min.js"></script>
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         $(document).ready(function(){
             $.ajaxSetup({
@@ -122,10 +125,37 @@
                 url = url.replace(/\/+$/, '');
                 return url;
             }
-
+            $("#my-form").validate({
+                rules: {
+                    url_check: {
+                        required: true,
+                        minlength: 1
+                    }
+                },
+                messages: {
+                    url_check: {
+                        required: "Please enter at least one URL.",
+                        minlength: "Please enter at least one URL."
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    error.appendTo('#error-msg');
+                }
+            });
             $('#my-form').on('submit', function(e) {
                 e.preventDefault();
                 let input = $('#url-check').val();
+                let regex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
+                if(input == '' || input.trim() == '' || input.split(/[\r\n,]+/).lenght < 1){
+                    $('#error-msg').text("Please enter at least one URL.");
+                    return;
+                }else if(input != regex){
+                    $('#error-msg').text("Please enter valid URLs.");
+                    return;
+                }else{
+                    $('#error-msg').text("");
+                    return;
+                }
                 let rawUrlsCheck = input.split(/[\r\n,]+/); 
                 let trimmedUrls = rawUrlsCheck.map(url => url.trim()).filter(url => url.length > 0);
 
