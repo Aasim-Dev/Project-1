@@ -49,13 +49,13 @@ class LoginController extends Controller
             if($user->email_verified_at != null){
                 return redirect()->route('advertiser.dashboard');
             }else{
-                return view('auth.login', ['message' => 'Please verify your email before logging in.']);
+                return view('auth.verify', ['message' => 'Please verify your email before logging in.']);
             }
         }elseif($user->user_type == "Publisher"){
             if($user->email_verified_at != null){
                 return redirect()->route('publisher.dashboard');
             }else{
-                return view('auth.login', ['message' => 'Please verify your email before logging in.']);
+                return view('auth.verify', ['message' => 'Please verify your email before logging in.']);
             }
         }else{
             Auth::logout();

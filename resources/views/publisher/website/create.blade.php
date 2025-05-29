@@ -211,7 +211,7 @@
                 var liPrice = $("#otherLiPrice").val();
                 return gpPrice.trim() !== ""  || liPrice.trim() !== ""; 
             }, "Please Enter Atleast One Price Field");
-            $("#postForm").validate({
+            $("#websiteForm").validate({
                 rules: {
                     catenormal: {
                         categoryRequired: true,

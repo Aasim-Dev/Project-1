@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('batch_id');
             $table->boolean('checked')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

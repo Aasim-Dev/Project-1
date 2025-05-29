@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:order-reminder-mail')->weekdays()->everyminute()->timezone('Asia/Kolkata');
         $schedule->command('app:price-update-mail')->everyMinute();
         $schedule->command('app:websites-checked-mail')->everyMinute();
+        $schedule->command('app:send-all-report-to-admin')->everyDay()->at('10:00');
         $schedule->job(new \App\Jobs\EmailReminderJob)->everyMinute();
     }
 

@@ -84,7 +84,7 @@ class PublisherController extends Controller
             if($wallets){
                 $wallets = Wallet::create([
                     'user_id' => $user->id,
-                    'order_type' => 'buying',
+                    'order_type' => 'ORDERPLACEMENT',
                     'description' => 'Order sells successfully',
                     'payment_status' => 'COMPLETED',
                     'credit_debit' => 'credit',

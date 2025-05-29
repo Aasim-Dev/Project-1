@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UrlChecker extends Model
 {
     use HasFactory;
+    use SoftDeletes;
     protected $table = 'url_checker';
     protected $fillable = [
         'user_id',
@@ -15,4 +17,6 @@ class UrlChecker extends Model
         'checked',
         'batch_id',
     ];
+
+    protected $dates = ['deleted_at'];
 }

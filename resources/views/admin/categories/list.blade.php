@@ -30,46 +30,6 @@
             background-color: #45a049;
         }
 
-        /* Modal Overlay */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Modal Box */
-        .modal {
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Form Fields */
-        .modal form label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .modal form input,
-        .modal form select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
 
         /* Table Styling */
         #myTable {
@@ -108,23 +68,48 @@
 @section('content')
 <h1>Here are some Categories</h1>
     <button id="addCategory">Add Categories from Here</button>
-    <div class="overlay">
-        <div class="modal">
-            <h2 id="modalTitle">Add Categories</h2>
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
             <form method="POST" id="catForm" action="{{ route('admin.category.store') }}">
                 @csrf
                 <input type="hidden" id="id" name="id" class="id" value="">
-                <label>Name:</label>
-                <input type="text" id="name" name="name" required>
-                <label>Tag:</label>
-                <input type="text" id="tag" name="tag" required>
-                <label>Description:</label>
-                <input type="text" id="description" name="description" required>
-                <label>Type:</label>
-                <select name="type"> <option value="normal"> Normal</option>
-                <option value="other"> Other</option> </select>
-                <button id="submit" type="submit">Submit</button>
+                <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Categories</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tag" class="form-label">Tag:</label>
+                    <input type="text" id="tag" name="tag" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <input type="text" id="description" name="description" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="type" class="form-label">Type:</label>
+                    <select name="type" id="type" class="form-select" required>
+                    <option value="normal">Normal</option>
+                    <option value="other">Other</option>
+                    </select>
+                </div>
+                </div>
+
+                <div class="modal-footer">
+                <button type="submit" id="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </form>
+            </div>
         </div>
     </div>
 
@@ -185,11 +170,11 @@
                 //console.log("Add Category button clicked");
                 $("#catForm")[0].reset();
                 $("#modalTitle").text("Add Category");
-                $(".overlay").fadeIn();
+                $("#categoryModal").modal('show');
             });
-            $(".overlay").click(function(e){
+            $("#categoryModal").click(function(e){
                 if(e.target.classList.contains("overlay")){
-                    $(".overlay").fadeOut();
+                    $("#categoryModal").modal('hide');
                 }
             });
             $(document).on('click', '.btn-edit', function(){
@@ -207,7 +192,7 @@
                 $("#description").val(description);
                 $(".type").val(type);
                 
-                $(".overlay").fadeIn();
+                $("#categoryModal").modal('show');
             });
             $(document).on('click', '.btn-delete', function() {
                 var id = $(this).data("id"); // Get the category ID

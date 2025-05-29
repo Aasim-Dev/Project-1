@@ -3,6 +3,7 @@
 @section('title', 'Website-List')
 
 @section('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -14,13 +15,97 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         user-select: none;
     }
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+    .custom-ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .custom-ul .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; 
+        margin-bottom: 10px;
+    }
+
+    .custom-ul li {
+        white-space: nowrap;
+    }
+
+    .search-bar-container {
+        display: flex;
+        justify-content: flex-end;
+        padding: 5px 10px 0;
+        gap: 4px;
+    }
+
+    .search {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        width: 250px;
+    }
+
+    .search-btn {
+        padding: 1px 2px;
+        background-color: #3498db;
+        width: 55px;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .search-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .pagination-btn {
+        display: flex;
+        justify-content: flex-end;
+        padding: 20px 0;
+    }
+
+    .pagination-btn ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        gap: 8px;
+    }
+
+    .pagination-btn li a {
+        display: block;
+        padding: 8px 12px;
+        background-color: #ecf0f1;
+        color: #2c3e50;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+    .pagination-btn li a:hover {
+        background-color: #d0d7de;
+    }
+
+    .right-side{
+        display: flex;
+        flex: 1 1 300px;
+        max-width: 350px;
+    }
 
     #marketplace-container {
+        height: calc(100vh - 60px); /* Adjust 60px if there's a navbar */
         display: flex;
         gap: 20px;
         padding: 20px;
-        flex-wrap: wrap;
         background-color: #f9f9f9;
+        overflow: hidden;
     }
 
     #marketplace-filters {
@@ -157,6 +242,11 @@
         z-index: 9999;
         animation: fadeIn 0.4s ease;
     }
+    #marketplace-filters,
+    #marketplace-table {
+        height: 100%;
+        overflow-y: auto;
+    }
 
     @keyframes fadeInLeft {
         from { opacity: 0; transform: translateX(-20px); }
@@ -181,6 +271,18 @@
         #marketplace-filters,
         #marketplace-table {
             max-width: 100%;
+        }
+    }
+    @media (max-width: 768px) {
+        #marketplace-container {
+            flex-direction: column;
+            height: auto;
+            overflow: auto;
+        }
+
+        #marketplace-filters,
+        #marketplace-table {
+            max-height: 400px;
         }
     }
 </style>
@@ -288,6 +390,10 @@
                 <button id="applyFilters">Apply Filters</button>
             </div>
             <div id="marketplace-table">
+                <div class="search-bar-container">
+                    <input type="text" class="search" id="search" name="search" placeholder="Search Your Website">
+                    <input type="submit" class="search-btn" value="Submit">
+                </div>
                 <div class="guide-modal" style="display: none; position: fixed; top: 20%; left: 30%; width: 40%; background: white; padding: 20px; border: 1px solid #ccc; z-index: 9999;">
                     <h1 style="color:green">Guidelines:</h1>
                     <h4 class="guide-content"></h4>
@@ -295,46 +401,40 @@
                 <table id="myTable">
                     <thead>
                         <tr>
-                            <th>Website</th>
-                            <th>DA</th>
-                            <th>Traffic</th>
-                            <th>Semrush</th>
-                            <th>Country</th>
-                            <th>Guest Post Price</th>
-                            <th>LinkInsertion Price</th>
+                            <th class="sort" data-column="website" data-order="asc">Website</th>
+                            <th class="sort" data-column="da" data-order="asc">DA</th>
+                            <th class="sort" data-column="ahref" data-order="asc">Traffic</th>
+                            <th class="sort" data-column="semrush" data-order="asc">Semrush</th>
+                            <th class="sort" data-column="tat" data-order="asc">TAT</th>
+                            <th class="sort" data-column="backlink" data-order="asc">Backlinks</th>
+                            <th class="sort" data-column="guest_post_price" data-order="asc">Guest Post Price</th>
+                            <th class="sort" data-column="linkinsertion_price" data-order="asc">LinkInsertion Price</th>
                             <th>Action</th>
-                            <th><i class="fas fa-ellipsis-h"></i></th>
+                            <th><button class="open-every"><i class="fas fa-ellipsis-h"></i></button></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($websites as $website)
                             <tr>
-                                <td><a href="{{$website->website_url}}">{{ $website->host_url }}</a><br><small>Category: {{ $website->normal_category }}</small></td>
-                                <td>{{ $website->da }}</td>
-                                <td>{{ $website->ahref_traffic }}</td>
-                                <td>{{ $website->semrush }}</td>
-                                <td>{{ $website->country }}</td>
-                                <td>{{ $website->guest_post_price }}</td>
-                                <td>{{ $website->linkinsertion_price }}</td>
-                                <td><button class="add-to-cart" data-id="{{$website->id}}">+Add</button></td>
-                                <td >
-                                   <button class="views"
-                                    data-rating="{{ $website->dr ?? 'NA' }}"
-                                    data-spam="{{ $website->spam_score ?? 'NA' }}"
-                                    data-lang="{{ $website->language ?? 'English' }}"
-                                    data-guidelines="{{ $website->guidelines ?? 'NA' }}"><i class="fas fa-chevron-down"></i></button>
-                                </td>
+                                
                             </tr>
-                        @endforeach
+                            <tr class="details-row" style="display:none">
+                                
+                            </tr>
                     </tbody>
                 </table>
+                <div class="pagination-btn">
+                    <ul>
+                        <li><a class="page-btn" name="previous" id="previous" data-previous="0">Previous</a></li>
+                        <li><a class="page-btn" name="next" id="next" data-next="1">Next</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 @endsection
 
 @section('scripts')
-    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src = "https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src ="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src ="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -342,6 +442,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        let page = 1;
+        let offset = 0;
         $(document).ready(function () {
             // Set CSRF Token
             $.ajaxSetup({
@@ -349,50 +451,180 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
             });
-            $('#myTable').DataTable({
-                
-                paging: true,
-                lengthMenu: [25, 50],
-                pageLength: 25,
-                
-                drawCallback: function () {
-                    $('.views').on('click', function () {
-                        toggleRow($(this)); 
-                    });
+            fetchWebsites();
+            $('#myTable').on('click', '.views', function () {
+                let $currentRow = $(this).closest('tr');
+                let $detailsRow = $currentRow.next('.details-row');
 
-                    // $('.views').each(function () {
-                    //     toggleRow($(this));
-                    // });
-                }
+                $detailsRow.toggle();
             });
+            $('.views').each(function () {
+                $(this).trigger('click');
+            });
+            $(document).on('click', '.open-every', function(){
+                $('.views').trigger('click');
+            });
+            $(document).on('click', '.sort', function(e) {
+
+                let column = $(this).data('column');
+                let order = $(this).data('order');
+                order = order === 'desc' ? 'asc' : 'desc';
+                $(this).data('order', order);
+
+                fetchWebsites(column, order);
+            });
+            $(document).on('keypress keydown click', '.search-btn', function(){
+                var search = $('#search').val();
+                fetchWebsites();
+            });
+            $('#next').on('click', function(){
+                var previous = $('#previous').attr('data-previous');
+                var next = $('#next').attr('data-next');
+                previous = parseInt(next);
+                next = parseInt(next) + 1;
+                offset = previous;
+                page = next;
+                $('#previous').attr('data-previous', previous);
+                $('#next').attr('data-next', next);
+                fetchWebsites();
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
+            });
+            $('#previous').on('click', function(){
+                var previous = $('#previous').attr('data-previous');
+                if (previous == 0) {
+                    $('#previous_page').addClass('disabled');
+                    return false;
+                }
+                var next = $('#next').attr('data-next');
+                next = previous;
+                previous = parseInt(previous) - 1;
+                next = parseInt(next);
+                $('#previous').attr('data-previous', previous);
+                $('#next').attr('data-next', next);
+                page = next;
+                offset = previous;
+                fetchWebsites();
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
+            });
+            
+            function fetchWebsites(column, order){
+                var search = $('#search').val();
+                var min_da_filter = $('#daFilterMin').val();  
+                var max_da_filter = $('#daFilterMax').val();  
+                var category_filter = $('#categoryFilter').val();  
+                var min_price_filter = $('#priceFilterMin').val();  
+                var max_price_filter = $('#priceFilterMax').val();
+                var country_filter = $('#countryFilter').val();
+                var min_ahref_filter = $('#ahrefFilterMin').val();
+                var max_ahref_filter = $('#ahrefFilterMax').val();
+                var min_semrush_filter = $("#semrushFilterMin").val();
+                var max_semrush_filter = $("#semrushFilterMax").val();
+                var tat_filter = $('#tatFilter').val(); 
+                var language_filter = $('#languageFilter').val();
+                var min_dr = $('#minDr').val();
+                var max_dr = $('#maxDr').val();
+                var min_authority_filter = $('#min_authority_filter').val();
+                var max_authority_filter = $('#max_authority_filter').val();
+                var link_type_filter = $('input[name="link_type_filter"]:checked').val();
+                
+                $.ajax({
+                    url: "{{route('marketplace')}}",
+                    type: "GET",
+                    data: {
+                        offset: offset,
+                        search: search,
+                        page: page,
+                        sort_column: column,
+                        sort_order: order,
+                        min_da_filter: min_da_filter,
+                        max_da_filter: max_da_filter,
+                        category_filter: category_filter,
+                        min_price_filter: min_price_filter,
+                        max_price_filter: max_price_filter,
+                        country_filter: country_filter,
+                        min_ahref_filter: min_ahref_filter, 
+                        max_ahref_filter: max_ahref_filter,
+                        min_semrush_filter: min_semrush_filter,
+                        max_semrush_filter: max_semrush_filter,
+                        tat_filter: tat_filter,
+                        language_filter: language_filter,
+                        min_dr: min_dr,
+                        max_dr: max_dr,
+                        min_authority_filter: min_authority_filter,
+                        max_authority_filter: max_authority_filter,
+                        link_type_filter: link_type_filter,
+                    },
+                    success: function(response){
+                        if(response.status === 'success'){
+                            renderTable(response.items); 
+                        } else {
+                            $('#myTable tbody').html('<tr><td colspan="10" class="text-center">No data found</td></tr>');
+                        }
+                    },
+                });
+            }
+            function renderTable(items) {
+                let tableBody = '';
+                items.forEach(item => {
+                    tableBody += `
+                    <tr>
+                        <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
+                        <td>${item.da}</td>
+                        <td>${(item.ahref > 100) ? item.ahref : '<100'}</td>
+                        <td>${(item.semrush > 100) ? item.semrush : '<100'}</td>
+                        <td>${item.tat}</td>
+                        <td>${item.backlink_type}</td>
+                        <td>${(item.guest_post_price > 0) ? '$' + item.guest_post_price : '-' }</td>
+                        <td>${(item.linkinsertion_price > 0) ? '$' + item.linkinsertion_price : '-'}</td>
+                        <td><button class="add-to-cart" data-id="${item.id}">+Add</button></td>
+                        <td><button class="views"><i class="fas fa-chevron-down"></i></button></td>
+                    </tr>
+                    <tr class="details-row" style="display:none">
+                        <td colspan="10">
+                            <div class="p-3 bg-white border rounded shadow-sm">
+                                <div class="container-fluid px-0">
+                                    <div class="row mb-2">
+                                        <div class="col-md-3"><strong>Domain Rating:</strong> ${item.domain_rating ?? 'NA'}</div>
+                                        <div class="col-md-3"><strong>Authority:</strong> ${item.authority_score ?? 'NA'}</div>
+                                        <div class="col-md-3"><strong>Spam Score:</strong> ${(item.spam_score > 0) ? item.spam_score + '%' : 'NA'}</div>
+                                        <div class="col-md-3"><strong>Total Keywords:</strong> ${(item.article_count > 0) ? item.article_count : 'NA'}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3"><strong>Language:</strong> ${item.language ?? 'NA'}</div>
+                                        <div class="col-md-3"><strong>Link Validity:</strong> ${item.domain_life_validity ?? 'NA'}</div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-sm btn-outline-primary guide-btn" data-guide="${item.guidelines}">
+                                                Guidelines
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        </td>
+                    </tr>`;
+                });
+
+                $('#myTable tbody').html(tableBody);
+                $('.views').each(function () {
+                    $(this).trigger('click');
+                });
+                $(document).on('click', '.open-every', function(){
+                    $('.views').trigger('click');
+                });
+            }
             $(document).on('click', '.guide-btn', function(){
+                var id = $(this).data('id');
                 var guide = $(this).data('guide');
+                //alert(guide); exit;
                 $('.guide-content').html(guide);
                 $('.guide-modal').fadeIn();
                 $('.guide-modal').fadeOut(8000);
             });
 
-            // 🔄 Shared row toggle function
-            function toggleRow($button) {
-                const tr = $button.closest('tr');
-                const row = $('#myTable').DataTable().row(tr);
-
-                if (row.child.isShown()) {
-                    row.child.hide();
-                } else {
-                    const html = `
-                        <div class="p-3 bg-white border rounded shadow-sm">
-                            <ul class="list-unstyled mb-0">
-                                <li class="mb-2"><strong>Domain Rating:</strong> ${$button.data('rating')}</li>
-                                <li class="mb-2"><strong>Spam Score:</strong> ${$button.data('spam')}</li>
-                                <li class="mb-2"><strong>Language:</strong> ${$button.data('lang')}</li>
-                                <li><strong><button class="guide-btn" data-guide="${$button.data('guidelines')}">Guidelines</button></strong></li>
-                            </ul>
-                        </div>
-                    `;
-                    row.child(html).show();
-                }
-            }
             $(".categoryFilter, .countryFilter, .languageFilter").select2({
                 placeholder: function() {
                     // Set dynamic placeholder based on element class
@@ -408,56 +640,16 @@
                 table.ajax.reload(); 
             });
 
-            $('#myTable_filter input').unbind().bind('keyup', function(e) {
+            $('#search').unbind().bind('keyup', function(e) {
                 if (e.key === 'Enter') {
-                    $('#myTable').DataTable().search(this.value).draw();
+                    $('.search-btn').trigger('click');
                 }
             });
             $('#applyFilters').on('click', function() {
-                let table = $('#myTable').DataTable();
-                let minDA = parseInt($('#daFilterMin').val()) || 0;
-                let maxDA = parseInt($('#daFilterMax').val()) || 100;
-                let selectedCategories = $('#categoryFilter').val();
-                let minPrice = parseFloat($('#priceFilterMin').val()) || 0;
-                let maxPrice = parseFloat($('#priceFilterMax').val()) || 10000;
-                let selectedCountry = $('#countryFilter').val();
-                let minAhref = parseInt($('#ahrefFilterMin').val()) || 0;
-                let maxAhref = parseInt($('#ahrefFilterMax').val()) || 10000000000;
-                let minSemrush = parseInt($('#semrushFilterMin').val()) || 0;
-                let maxSemrush = parseInt($('#semrushFilterMax').val()) || 10000000000;
-                let selectedTAT = $('#tatFilter').val();
-                let selectedLanguage = $('#languageFilter').val();
-                let minDR = parseInt($('#minDr').val()) || 0;
-                let maxDR = parseInt($('#maxDr').val()) || 100;
-                let minAuthority = parseInt($('#min_authority_filter').val()) || 0;
-                let maxAuthority = parseInt($('#max_authority_filter').val()) || 100;
-                let selectedLinkType = $('input[name="link_type_filter"]:checked').val();
-
-                table.rows().every(function () {
-                    let row = this.node();
-                    $(row).show(); 
-                });
-
-                table.rows().every(function () {
-                    let data = this.data(); 
-                    let da = parseInt(data[1]);
-                    let authority = parseInt(data[1]); 
-                    let country = data[4];
-                    let category = $(this.node()).find('small').text().replace('Category: ', '');
-
-                    let daValid = da >= minDA && da <= maxDA;
-                    let categoryValid = selectedCategories.length === 0 || selectedCategories.includes(category);
-                    let countryValid = selectedCountry.length === 0 || selectedCountry.includes(country);
-
-                    if (!(daValid && categoryValid && countryValid)) {
-                        $(this.node()).hide(); 
-                    }
-
-                });
-                table.draw();
-                $('.views').on('click', function () {
-                    toggleRow($(this)); 
-                });
+                $('#previous').attr('data-previous', 0);
+                $('#next').attr('data-next', 1);
+                page = 1;
+                fetchWebsites();
             });
 
             // STEP 1: Load cart item IDs and update buttons

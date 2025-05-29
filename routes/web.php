@@ -99,6 +99,7 @@ Route::get('/wallet/paypal/cancel', [WalletController::class, 'handlePayPalCance
 Route::post('/partner/api/price', [AdvertiserController::class, 'getPrice'])->name('checkPrice');
 Route::get('/advertiser/blstool', [AdvertiserController::class, 'urlCheck'])->name('urlChecker');
 Route::post('/advertiser/urlPost', [AdvertiserController::class, 'urlCheckSave'])->name('urlCheck.save');
+Route::get('/fetch-marketplace', [MarketplaceController::class, 'fetchMarketplaceData'])->name('marketplace');
 
 
 //route for category type::
@@ -114,6 +115,5 @@ Route::post('/advertiser/urlPost', [AdvertiserController::class, 'urlCheckSave']
     //route for the categories to show dynamically.
     //Route::get('/publisher/website/create', [PublisherController::class, 'showCategories']);
 
-//MarkeplaceController Routes 
-Route::post('/website/data', [MarketplaceController::class, 'websiteData'])->name('dataTable');
+//OrderController Routes 
 Route::post('/advertiser/website/data', [OrderController::class, 'orderData'])->name('order.data');

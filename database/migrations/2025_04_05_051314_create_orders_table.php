@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('target_url')->nullable();
             $table->string('special_note')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

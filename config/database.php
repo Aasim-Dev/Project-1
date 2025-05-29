@@ -42,6 +42,7 @@ return [
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'timezone' => '+05:30',
+            'soft_delete' => true,
         ],
 
         'mysql' => [
@@ -57,6 +58,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'timezone' => '+05:30',
+            'soft_delete' => true,
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,

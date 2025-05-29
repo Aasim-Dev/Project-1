@@ -20,9 +20,11 @@ return new class extends Migration
             $table->string('user_type');
             $table->string('register_from')->nullable();
             $table->boolean('vacation_mode')->default(0)->nullable();
+            $table->boolean('is_active')->default(1)->nullable();
             $table->string('openapi_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

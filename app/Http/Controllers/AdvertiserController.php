@@ -9,6 +9,7 @@ use App\Models\Wallet;
 use Illuminate\Http\Request;
 use illuminate\Support\Facades\Auth;
 use App\Services\GoogleSheetServices;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use DB;
 use \Cache;
@@ -195,7 +196,7 @@ class AdvertiserController extends Controller
         $user = User::where('id', $carts->advertiser_id)->first();
         $price = ($carts->guest_post_price ?? $carts->linkinsertion_price) * 1.3;
 
-        Order::create([
+        $orders = Order::create([
             'advertiser_id' => Auth::user()->id,
             'publisher_id' => $publisherId,
             'website_id' => $request->website_id,
@@ -219,6 +220,10 @@ class AdvertiserController extends Controller
             'target_url' => $carts->target_url,
             'special_note' => $carts->special_note,
         ]);
+
+        if($orders){
+            return response()->json(['success']);
+        }
 
         $sheet = new GoogleSheetServices();
         $sheet->saveDataToSheet([[
@@ -251,7 +256,7 @@ class AdvertiserController extends Controller
         $totalBalance -= $total;
         Wallet::create([
             'user_id' => $user->id,
-            'order_type' => 'buying',
+            'order_type' => 'ORDERPLACEMENT',
             'description' => 'Order placed successfully',
             'payment_status' => 'COMPLETED',
             'credit_debit' => 'debit',
@@ -260,7 +265,7 @@ class AdvertiserController extends Controller
             'updated_at' => now(),
         ]);
         $ord = Order::all();
-        return redirect()->route('orders.list')->with('success', 'Order Created Successfully');
+        return view('advertiser.orders.list');
     }
     //Here the Advertiser Logic is ending.
 
@@ -400,5 +405,7 @@ class AdvertiserController extends Controller
         }
         return response()->json(['status' => 'success']);
     }
+
+    
 }
 

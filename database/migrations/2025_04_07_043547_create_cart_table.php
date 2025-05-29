@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('special_note')->nullable();
             $table->unsignedBigInteger('response_cart_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
