@@ -200,9 +200,9 @@
                                 <label for="titlesuggestion" class="form-label">Title Suggestion*</label>
                                 <input type="text" class="form-control" id="title_suggestion_{{$item->id}}" name="title_suggestion" value="{{$item->title_suggestion ?? ''}}" placeholder="Enter title suggestion"><br>
                                 <label for="keywords" class="form-label">Keywords*</label>
-                                <input type="text" class="form-control" id="keywords_{{$item->id}}" name="keywords" value="{{$item->keywords ?? ''}}" placeholder="Enter keywords: Seperated by Comma"><br>
+                                <input type="text" class="form-control keyword" id="keywords_{{$item->id}}" name="keywords" value="{{$item->keywords ?? ''}}" placeholder="Enter keywords: Seperated by Comma"><br>
                                 <label for="anchortext" class="form-label">Anchor Text*</label>
-                                <input type="text" class="form-control" id="anchor_text_{{$item->id}}" name="anchor_text"  value="{{$item->anchor_text ?? ''}}" placeholder="Enter anchor text"><br>
+                                <input type="text" class="form-control anchor" id="anchor_text_{{$item->id}}" name="anchor_text"  value="{{$item->anchor_text ?? ''}}" placeholder="Enter anchor text"><br>
                                 <label for="country">Country*</label>
                                 <select name="country" id="country_{{$item->id}}" class="form-control">
                                     <option value="{{$item->country ?? ''}}">{{$item->country ?? ''}}</option>
@@ -240,9 +240,9 @@
                                     <option value="Web Development">Web Development</option>
                                 </select><br>
                                 <label for="reference" class="form-label">Reference Link*</label>
-                                <input type="text" class="form-control" id="reference_{{$item->id}}" name="reference" value="{{$item->reference_link ?? ''}}" placeholder="Enter reference link"><br>
+                                <input type="text" class="form-control reference" id="reference_{{$item->id}}" name="reference" value="{{$item->reference_link ?? ''}}" placeholder="Enter reference link"><br>
                                 <label for="landingpage" class="form-label">Landing Page URL*</label>
-                                <input type="text" class="form-control" id="target_url_{{$item->id}}" name="target_url" value="{{$item->target_url ?? ''}}" placeholder="Enter landing page URL"><br>
+                                <input type="text" class="form-control landing" id="target_url_{{$item->id}}" name="target_url" value="{{$item->target_url ?? ''}}" placeholder="Enter landing page URL"><br>
                                 <label for="briefnote">Breif Note</label>
                                 <textarea class="form-control" name="special_note" id="special_note_{{$item->id}}" placeholder="Enter Notes" >{{$item->special_note ?? ''}}</textarea>
                             </div>
@@ -273,10 +273,10 @@
                                 <input type="url" class="form-control" id="existing_post_url_{{$item->id}}" name="existing_post_url" value="{{$item->existing_post_url}}" placeholder="https://example.com/post-url">
                                     
                                 <label for="landing_url_{{$item->id}}" class="form-label mt-3">Landing Page URL</label>
-                                <input type="url" class="form-control" id="target_url_{{$item->id}}" name="target_url" value="{{$item->target_url}}" placeholder="https://your-site.com">
+                                <input type="url" class="form-control" id="target_{{$item->id}}" name="target_url" value="{{$item->target_url}}" placeholder="https://your-site.com">
 
                                 <label for="anchor_text_{{$item->id}}" class="form-label mt-3">Anchor Text</label>
-                                <input type="text" class="form-control" id="anchor_text_{{$item->id}}" name="anchor_text" value="{{$item->anchor_text}}" placeholder="Anchor Text">
+                                <input type="text" class="form-control" id="anchor_{{$item->id}}" name="anchor_texts" value="{{$item->anchor_text}}" placeholder="Anchor Text">
 
                                 <label for="language_{{$item->id}}" class="form-label mt-3">Language</label>
                                 <input type="text" class="form-control" id="language_{{$item->id}}" name="language" value="{{ $item->language ?? 'English' }}" readonly>
@@ -464,11 +464,28 @@
                             },
                             submitHandler: function () {
                                 const websiteId = $(form).data('website-id');
+                                const category = $('#category_' + itemId).val();
+                                const keyword = $('#keywords_' + itemId).val();
+                                const targetUrl = $('#target_url_' + itemId ).val();
+                                const referenceUrl = $('#reference_' + itemId).val();
+                                const anchorText = $('#anchor_text_' + itemId).val();
+                                const wordCount = $('#wordcount_' + itemId).val();
+                                const country = $('#country_' + itemId).val();
+                                const specialNote = $('#special_note_' + itemId).val();
+                                const language = $('#language_' + itemId).val() ?? 'English';
                                 const formData = new FormData();
                                 formData.append('_token', '{{ csrf_token() }}');
                                 formData.append('website_id', websiteId);
-                                formData.append('type', 'expert_writer');
-
+                                formData.append('type', 'expert_writter');
+                                formData.append('category', category);
+                                formData.append('keyword', keyword);
+                                formData.append('target_url', targetUrl);
+                                formData.append('reference_url', referenceUrl);
+                                formData.append('anchor_text', anchorText);
+                                formData.append('word_count', wordCount);
+                                formData.append('target_audience', country);
+                                formData.append('special_note', specialNote);
+                                formData.append('language', language);
                                 $.ajax({
                                     url: "{{route('cart.hire')}}",
                                     type: "POST",
@@ -496,12 +513,21 @@
                     const formId = $(form).attr('id');
                     const itemId = formId.split('_')[1];
                     const websiteId = $(form).data('website-id');
-
+                    const existingPost = $('#existing_post_url_' + itemId).val();
+                    const targetUrl = $('#target_' + itemId).val();
+                    const anchorText = $('#anchor_' + itemId).val();
+                    const language = $('#language_' + itemId).val() ?? 'English';
+                    const note = $('#note_' + itemId).val();
                     const formData = new FormData();
                     formData.append('_token', '{{ csrf_token() }}');
                     formData.append('website_id', websiteId);
                     formData.append('type', 'link_insertion');
-                    
+                    formData.append('existing_post_url', existingPost);
+                    formData.append('target_url', targetUrl);
+                    formData.append('anchor_texts', anchorText);
+                    formData.append('language', language);
+                    formData.append('special_note', note);
+                   
                     $.ajax({
                         url: "{{route('cart.link')}}",
                         type: 'POST',

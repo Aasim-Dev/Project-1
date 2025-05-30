@@ -35,6 +35,7 @@ class Cart extends Model
         'reference_link',
         'target_url',
         'special_note',
+        'client_token',
     ];
 
     protected $dates = ['deleted_at'];

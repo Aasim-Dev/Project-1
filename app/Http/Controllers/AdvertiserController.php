@@ -183,22 +183,22 @@ class AdvertiserController extends Controller
         }
         $request->validate([
             'advertiser_id'=> ['exists:users,id'],
-            'website_id' => ['exists:websites,id' ],         
+            //'website_id' => ['exists:websites,id' ],         
         ]);
         $total = $request->price;
         //dd($total);
         if($totalBalance < $total){
             return response()->json(['success' => false, 'message' => 'Insufficient balance.'], 403);
         }
-        $websites = Website::findOrFail($request->website_id);  // Assuming $id is the website_id
-        $publisherId = $websites->user_id;
+        //$websites = Website::findOrFail($request->website_id);  // Assuming $id is the website_id
+        //$publisherId = $websites->user_id;
         $carts = Cart::where('website_id', $request->website_id)->first();
         $user = User::where('id', $carts->advertiser_id)->first();
         $price = ($carts->guest_post_price ?? $carts->linkinsertion_price) * 1.3;
 
         $orders = Order::create([
             'advertiser_id' => Auth::user()->id,
-            'publisher_id' => $publisherId,
+            'publisher_id' => 28796,
             'website_id' => $request->website_id,
             'host_url' => $carts->host_url,
             'da' => $carts->da,
@@ -316,45 +316,44 @@ class AdvertiserController extends Controller
 
     public function getCartWebsites() {
         $cartIds = Cart::where('advertiser_id', Auth::id())->pluck('website_id')->toArray();
+        //dd($cartIds);  
         return response()->json(['cart' => $cartIds]);
     }
     
     public function toggleCart(Request $request){
-        //dd(auth()->user());
-        $advertiserId = Auth::id();
+        $advertiserId = Auth::user();
         $websiteId = $request->website_id;
         $website = Website::where('id', $websiteId)->first();
-        //dd($website->ahref_traffic);
-        $cartItem = Cart::where('advertiser_id', $advertiserId)->where('website_id', $websiteId)->first();
+        //dd($request->website_id);
+        $cartItem = Cart::where('advertiser_id', $advertiserId->id)->where('website_id', $request->website_id)->first();
         if($cartItem){
             $cartItem->delete();
-            return response()->json(['status' => 'removed', 'message' => 'Website Removed']);
+            $response = Http::withToken('B2tr8yxCoeN2sIASSfZq3bhdM4rpEP')->post('https://lp-latest.elsnerdev.com/api/cart/store', [
+                    'website_id' => $request->website_id,
+                    'action' => 'remove',
+                    'client_token' => $advertiserId->client_token,
+                ]);
+            return response()->json(['status' => 'removed', 'message' => 'Website Removed', 'response' => $response->json()]);
         }else{
-            Cart::create([
-                'advertiser_id' => $advertiserId,
-                'website_id' => $websiteId,
-                'host_url' => $website->host_url,
-                'da' => $website->da,
-                'tat' => $website->tat,
-                'semrush' => $website->ahref_traffic,
-                'guest_post_price' => $website->guest_post_price,
-                'linkinsertion_price' => $website->linkinsertion_price,
-                'status' => 'cart',
-
+            $response = Http::withToken('B2tr8yxCoeN2sIASSfZq3bhdM4rpEP')->post('https://lp-latest.elsnerdev.com/api/cart/store', [
+                'website_id' => $request->website_id,
+                'action' => 'add',
+                'client_token' => $advertiserId->client_token,
             ]);
-            return response()->json(['status'=>'success', 'message' => 'Website Added To Cart Successfully']);
+            Cart::create([
+                'advertiser_id' => $advertiserId->id,
+                'website_id' => $websiteId,
+                'host_url' => $request->host_url,
+                'da' => $request->da,
+                'tat' => $request->tat,
+                'semrush' => $request->semrush,
+                'guest_post_price' => $request->guest_post_price,
+                'linkinsertion_price' => $request->linkinsertion_price,
+                'status' => 'cart',
+                'client_token' => $advertiserId->client_token,
+            ]);
+            return response()->json(['status'=>'success', 'message' => 'Website Added To Cart Successfully', 'response' => $response->json()]);
         }
-    }
-    public function cancelOrder(Request $request) {
-        $request->validate([
-            'id' => ['required', 'exists:orders,id'],
-            'status' => ['required', 'string', 'in:cancelled']
-        ]);
-    
-        $order = Order::findOrFail($request->id);
-        $order->status = $request->status;
-        $order->save();
-        return response()->json(['message' => 'Order Cancelled Successfully']);
     }
 
     public function getPrice(Request $request){

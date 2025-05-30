@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('advertiser_id');
             $table->foreign('advertiser_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('website_id');
-            $table->foreign('website_id')->references('id')->on('websites')->onDelete('cascade');
+            //$table->foreign('website_id')->references('id')->on('websites')->onDelete('cascade');
             $table->string('host_url');
             $table->integer('da');
             $table->string('tat');
@@ -41,6 +41,7 @@ return new class extends Migration
             $table->unsignedBigInteger('response_cart_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->string('client_token')->nullable();
         });
     }
 

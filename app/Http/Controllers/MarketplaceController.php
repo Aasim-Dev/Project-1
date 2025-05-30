@@ -27,6 +27,7 @@ class MarketplaceController extends Controller
         $minAuthority = $request->min_authority_filter;
         $maxAuthority = $request->max_authority_filter;
         $tat = $request->tat_filter;
+        $marketplaceFilter = $request->marketplaceFilter;
         $language = $request->input('language_filter', []);
         $sortColumn = $request->input('sort_column', 'da'); 
         $sortOrder = $request->input('sort_order', 'desc');
@@ -80,13 +81,12 @@ class MarketplaceController extends Controller
             $query->where('language', $language);
         }
         $start = $request->get('page', 1);
-        //dd($start);
         $offset = $request->get('offset');
         $page = $start;
         $length = 25;
         $response = Http::withToken('B2tr8yxCoeN2sIASSfZq3bhdM4rpEP')->post('https://lp-latest.elsnerdev.com/api/fetch-inventory', [
             'page_no' => $page,
-            'marketplaceType' => 0,
+            'marketplaceType' => $marketplaceFilter,
             'per_page' => $length,
             'search' => $search,
             'min_da_filter' => $min_da,
@@ -111,12 +111,10 @@ class MarketplaceController extends Controller
         ]);
     
         $data = $response->json();
-        //dd($data);
         $items = $data['data']['items'] ?? [];
-        //dd($items);
         $totalRecords = $data['data']['total_records'] ?? count($items);
-
+        $totalPages = ceil($totalRecords / $length );
         $websites = $query->get();
-        return response()->json(['status' => 'success', 'data' => $websites, 'items'=> $items, 'totalRecords' => $totalRecords]);
+        return response()->json(['status' => 'success', 'data' => $websites, 'items'=> $items, 'totalRecords' => $totalRecords, 'totalPages' => $totalPages]);
     }
 }

@@ -30,7 +30,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'user_type',
         'register_from',
         'remember_token',
-        'openapi_token'
+        'openapi_token',
+        'client_token',
     ];
 
     protected $dates = ['deleted_at'];

@@ -292,6 +292,19 @@
         <div id="marketplace-container">
             <div id="marketplace-filters">
                 <label for="Filters"><h1>Filters:</h1></label>
+                <div class="mb-3" id="marketplacetype">
+                    <label class="form-label d-block">Marketplace Type:</label>
+                    
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="normal">Normal</label>
+                        <input class="form-check-input" type="radio" name="marketplace_type_filter" id="normal" value="0" checked>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="marketplace_type_filter" id="forbidden" value="1">
+                        <label class="form-check-label" for="forbidden">Forbidden</label>
+                    </div>
+                </div>
                 <div name="da" id="da" class="filter-group">
                     <label for="da">DA Filter:</label>
                     <input type="number" id="daFilterMin" placeholder="Min DA">
@@ -386,7 +399,6 @@
                     <input type="radio" name="link_type_filter" id="nofollow" value="nofollow">
                     <label for="nofollow">No follow</label>
                 </div>
-                <!-- <input type="date" id="dateFilter" placeholder="Created After">     -->
                 <button id="applyFilters">Apply Filters</button>
             </div>
             <div id="marketplace-table">
@@ -398,8 +410,8 @@
                     <h1 style="color:green">Guidelines:</h1>
                     <h4 class="guide-content"></h4>
                 </div>
-                <table id="myTable">
-                    <thead>
+                <table id="myTable" class="table table-bordered table-hover">
+                    <thead class="table-light">
                         <tr>
                             <th class="sort" data-column="website" data-order="asc">Website</th>
                             <th class="sort" data-column="da" data-order="asc">DA</th>
@@ -487,9 +499,9 @@
                 $('#previous').attr('data-previous', previous);
                 $('#next').attr('data-next', next);
                 fetchWebsites();
-                $("html, body").animate({
-                    scrollTop: 0
-                }, "slow");
+                // $("html, body").animate({
+                //     scrollTop: 0
+                // }, "slow");
             });
             $('#previous').on('click', function(){
                 var previous = $('#previous').attr('data-previous');
@@ -506,11 +518,15 @@
                 page = next;
                 offset = previous;
                 fetchWebsites();
-                $("html, body").animate({
-                    scrollTop: 0
-                }, "slow");
+                // $("html, body").animate({
+                //     scrollTop: 0
+                // }, "slow");
             });
-            
+            $('input[name="marketplace_type_filter"]').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#applyFilters').trigger('click');
+                }
+            });        
             function fetchWebsites(column, order){
                 var search = $('#search').val();
                 var min_da_filter = $('#daFilterMin').val();  
@@ -530,6 +546,7 @@
                 var min_authority_filter = $('#min_authority_filter').val();
                 var max_authority_filter = $('#max_authority_filter').val();
                 var link_type_filter = $('input[name="link_type_filter"]:checked').val();
+                var marketplaceFilter = $('input[name="marketplace_type_filter"]:checked').val();
                 
                 $.ajax({
                     url: "{{route('marketplace')}}",
@@ -557,13 +574,15 @@
                         min_authority_filter: min_authority_filter,
                         max_authority_filter: max_authority_filter,
                         link_type_filter: link_type_filter,
+                        marketplaceFilter: marketplaceFilter
                     },
                     success: function(response){
                         if(response.status === 'success'){
-                            renderTable(response.items); 
+                            renderTable(response.items);
                         } else {
                             $('#myTable tbody').html('<tr><td colspan="10" class="text-center">No data found</td></tr>');
                         }
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
                     },
                 });
             }
@@ -580,7 +599,8 @@
                         <td>${item.backlink_type}</td>
                         <td>${(item.guest_post_price > 0) ? '$' + item.guest_post_price : '-' }</td>
                         <td>${(item.linkinsertion_price > 0) ? '$' + item.linkinsertion_price : '-'}</td>
-                        <td><button class="add-to-cart" data-id="${item.id}">+Add</button></td>
+                        <td><button class="add-to-cart" data-id="${item.id}" data-website="${item.website_id}" data-host="${item.host_url}" data-da="${item.da}" data-tat="${item.tat}"
+                        data-ahref="${item.ahref}" data-semrush="${item.semrush}" data-guest="${item.guest_post_price}" data-link="${item.linkinsertion_price}">+Add</button></td>
                         <td><button class="views"><i class="fas fa-chevron-down"></i></button></td>
                     </tr>
                     <tr class="details-row" style="display:none">
@@ -607,7 +627,6 @@
                         </td>
                     </tr>`;
                 });
-
                 $('#myTable tbody').html(tableBody);
                 $('.views').each(function () {
                     $(this).trigger('click');
@@ -615,11 +634,57 @@
                 $(document).on('click', '.open-every', function(){
                     $('.views').trigger('click');
                 });
+                $.get('{{ route("website.cart") }}', function (response) {
+                    const cartItems = response.cart.map(id => id.toString());
+
+                    $('.add-to-cart').each(function () {
+                        const websiteId = $(this).data('id').toString();
+
+                        if (cartItems.includes(websiteId)) {
+                            $(this).text("Remove").css("background-color", "#e74c3c");
+                        }
+                    });
+
+                    updateCartCount();
+                });
+                $(document).on('click', '.add-to-cart', function () {
+                    const button = $(this);
+                    const websiteId = button.data('id').toString();
+                    var website_id = button.data('website');
+                    var hostUrl = button.data('host');
+                    var da = button.data('da');
+                    var tat = button.data('tat');
+                    var semrush = button.data('semrush');
+                    var gp_price = button.data('guest');
+                    var li_price = button.data('link'); 
+                    //alert('add');
+                    $.ajax({
+                        url: "{{route('cart.toggle')}}",
+                        type: "POST",
+                        data: {
+                            website_id: website_id,
+                            host_url: hostUrl,
+                            da: da,
+                            tat: tat,
+                            semrush: semrush,
+                            guest_post_price: gp_price,
+                            linkinsertion_price: li_price,
+                            _token: '{{csrf_token()}}',
+                        },
+                        success: function(response){
+                            if (response.status === 'success') {
+                                button.text("Remove").css("background-color", "#e74c3c");
+                            } else if (response.status === 'removed') {
+                                button.text("+Add").css("background-color", "#2ecc71");
+                            }
+                            updateCartCount(); // Update the count on toggle
+                        },
+                    });
+                });
             }
             $(document).on('click', '.guide-btn', function(){
                 var id = $(this).data('id');
                 var guide = $(this).data('guide');
-                //alert(guide); exit;
                 $('.guide-content').html(guide);
                 $('.guide-modal').fadeIn();
                 $('.guide-modal').fadeOut(8000);
@@ -651,44 +716,54 @@
                 page = 1;
                 fetchWebsites();
             });
+                $.get('{{ route("website.cart") }}', function (response) {
+                    const cartItems = response.cart.map(id => id.toString());
 
-            // STEP 1: Load cart item IDs and update buttons
-            $.get('{{ route("website.cart") }}', function (response) {
-                const cartItems = response.cart.map(id => id.toString());
+                    $('.add-to-cart').each(function () {
+                        const websiteId = $(this).data('id').toString();
 
-                $('.add-to-cart').each(function () {
-                    const websiteId = $(this).data('id').toString();
-
-                    if (cartItems.includes(websiteId)) {
-                        $(this).text("Remove").css("background-color", "#e74c3c");
-                    }
-                });
-
-                updateCartCount(); // Set the count on page load
-            });
-
-            // STEP 2: Handle Add/Remove click
-            $(document).on('click', '.add-to-cart', function () {
-                const button = $(this);
-                const websiteId = button.data('id').toString();
-                //alert('add');
-                $.ajax({
-                    url: "{{route('cart.toggle')}}",
-                    type: "POST",
-                    data: {
-                        website_id: websiteId,
-                        _token: '{{csrf_token()}}',
-                    },
-                    success: function(response){
-                        if (response.status === 'success') {
-                            button.text("Remove").css("background-color", "#e74c3c");
-                        } else if (response.status === 'removed') {
-                            button.text("+Add").css("background-color", "#2ecc71");
+                        if (cartItems.includes(websiteId)) {
+                            $(this).text("Remove").css("background-color", "#e74c3c");
                         }
-                        updateCartCount(); // Update the count on toggle
-                    },
+                    });
+
+                    updateCartCount();
                 });
-            });
+
+                // $(document).on('click', '.add-to-cart', function () {
+                //     const button = $(this);
+                //     const websiteId = button.data('id').toString();
+                //     var website_id = button.data('website');
+                //     var hostUrl = button.data('host');
+                //     var da = button.data('da');
+                //     var tat = button.data('tat');
+                //     var semrush = button.data('semrush');
+                //     var gp_price = button.data('guest');
+                //     var li_price = button.data('link'); 
+                //     //alert('add');
+                //     $.ajax({
+                //         url: "{{route('cart.toggle')}}",
+                //         type: "POST",
+                //         data: {
+                //             website_id: website_id,
+                //             host_url: hostUrl,
+                //             da: da,
+                //             tat: tat,
+                //             semrush: semrush,
+                //             guest_post_price: gp_price,
+                //             linkinsertion_price: li_price,
+                //             _token: '{{csrf_token()}}',
+                //         },
+                //         success: function(response){
+                //             if (response.status === 'success') {
+                //                 button.text("Remove").css("background-color", "#e74c3c");
+                //             } else if (response.status === 'removed') {
+                //                 button.text("+Add").css("background-color", "#2ecc71");
+                //             }
+                //             updateCartCount(); // Update the count on toggle
+                //         },
+                //     });
+                // });
 
             // STEP 3: Count updater function
             function updateCartCount() {

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('checked')->default(0);
             $table->timestamps();
             $table->softDeletes();
+            $table->string('client_token')->nullable();
         });
     }
 

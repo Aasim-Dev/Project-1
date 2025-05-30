@@ -41,6 +41,7 @@ return new class extends Migration
             $table->string('special_note')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->string('client_token')->nullable();
         });
     }
 
