@@ -148,13 +148,8 @@
                 let regex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
                 if(input == '' || input.trim() == '' || input.split(/[\r\n,]+/).lenght < 1){
                     $('#error-msg').text("Please enter at least one URL.");
-                    return;
-                }else if(input != regex){
-                    $('#error-msg').text("Please enter valid URLs.");
-                    return;
                 }else{
                     $('#error-msg').text("");
-                    return;
                 }
                 let rawUrlsCheck = input.split(/[\r\n,]+/); 
                 let trimmedUrls = rawUrlsCheck.map(url => url.trim()).filter(url => url.length > 0);
@@ -175,7 +170,7 @@
 
                 if (hasDuplicate) {
                     $('#error-msg').text("Duplicate URLs detected in your submission.");
-                } else {
+                }else {
                     $('#error-msg').text("");
                     $.ajax({
                         url: "{{route('urlCheck.save')}}",
@@ -194,3 +189,8 @@
         });
     </script>
 @endsection
+
+<!--        else if(input != regex){
+                    $('#error-msg').text("Please enter valid URLs.");
+                    return;
+                } -->

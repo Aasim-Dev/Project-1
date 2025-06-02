@@ -110,7 +110,7 @@
 
     #marketplace-filters {
         flex: 1 1 300px;
-        max-width: 350px;
+        max-width: 250px;
         padding: 20px;
         background: #ffffff;
         border-radius: 16px;
@@ -392,6 +392,21 @@
                         <option value="60 days">60 days</option>
                     </select>
                 </div>
+                <div name="spam" id="spam" class="filter-group">
+                    <label for="spam">Spam Filter:</label>
+                    <input type="number" id="spamFilterMin" placeholder="Min spam Score">
+                    <input type="number" id="spamFilterMax" placeholder="Max Spam Score">
+                </div>
+                <div name="trust" id="trust" class="filter-group">
+                    <label for="trust">Trust FLow Filter:</label>
+                    <input type="number" id="trustFilterMin" placeholder="Min Trust Flow">
+                    <input type="number" id="trustFilterMax" placeholder="Max Trust Flow">
+                </div>
+                <div name="citation" id="citation" class="filter-group">
+                    <label for="citation">Spam Filter:</label>
+                    <input type="number" id="citationFilterMin" placeholder="Min Citation Flow">
+                    <input type="number" id="citationFilterMax" placeholder="Max Citation Flow">
+                </div>
                 <div class="filter-group" id="linktype">
                     <label for="linktype">Link Type:</label>
                     <input type="radio" name="link_type_filter" id="dofollow" value="dofollow">
@@ -410,7 +425,7 @@
                     <h1 style="color:green">Guidelines:</h1>
                     <h4 class="guide-content"></h4>
                 </div>
-                <table id="myTable" class="table table-bordered table-hover">
+                <table id="myTable" class="table">
                     <thead class="table-light">
                         <tr>
                             <th class="sort" data-column="website" data-order="asc">Website</th>
@@ -547,6 +562,12 @@
                 var max_authority_filter = $('#max_authority_filter').val();
                 var link_type_filter = $('input[name="link_type_filter"]:checked').val();
                 var marketplaceFilter = $('input[name="marketplace_type_filter"]:checked').val();
+                var minSpamScore = $('#spamFilterMin').val();
+                var maxSpamScore = $('#spamFilterMax').val();
+                var minTrustFlow = $('#trustFilterMin').val();
+                var maxTrustFlow = $('#trustFilterMax').val();
+                var minCitationFlow = $('#citationFilterMin').val();
+                var maxCitationFlow = $('#citationFilterMax').val();
                 
                 $.ajax({
                     url: "{{route('marketplace')}}",
@@ -574,7 +595,13 @@
                         min_authority_filter: min_authority_filter,
                         max_authority_filter: max_authority_filter,
                         link_type_filter: link_type_filter,
-                        marketplaceFilter: marketplaceFilter
+                        marketplaceFilter: marketplaceFilter,
+                        min_spam_score: minSpamScore,
+                        max_spam_score: maxSpamScore,
+                        min_citation_flow: minCitationFlow,
+                        max_citation_flow: maxCitationFlow,
+                        min_trust_flow: minTrustFlow,
+                        max_trust_flow: maxTrustFlow,
                     },
                     success: function(response){
                         if(response.status === 'success'){
@@ -587,46 +614,101 @@
                 });
             }
             function renderTable(items) {
+                var marketplaceFilter = $('input[name="marketplace_type_filter"]:checked').val();
                 let tableBody = '';
-                items.forEach(item => {
-                    tableBody += `
-                    <tr>
-                        <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
-                        <td>${item.da}</td>
-                        <td>${(item.ahref > 100) ? item.ahref : '<100'}</td>
-                        <td>${(item.semrush > 100) ? item.semrush : '<100'}</td>
-                        <td>${item.tat}</td>
-                        <td>${item.backlink_type}</td>
-                        <td>${(item.guest_post_price > 0) ? '$' + item.guest_post_price : '-' }</td>
-                        <td>${(item.linkinsertion_price > 0) ? '$' + item.linkinsertion_price : '-'}</td>
-                        <td><button class="add-to-cart" data-id="${item.id}" data-website="${item.website_id}" data-host="${item.host_url}" data-da="${item.da}" data-tat="${item.tat}"
-                        data-ahref="${item.ahref}" data-semrush="${item.semrush}" data-guest="${item.guest_post_price}" data-link="${item.linkinsertion_price}">+Add</button></td>
-                        <td><button class="views"><i class="fas fa-chevron-down"></i></button></td>
-                    </tr>
-                    <tr class="details-row" style="display:none">
-                        <td colspan="10">
-                            <div class="p-3 bg-white border rounded shadow-sm">
-                                <div class="container-fluid px-0">
-                                    <div class="row mb-2">
-                                        <div class="col-md-3"><strong>Domain Rating:</strong> ${item.domain_rating ?? 'NA'}</div>
-                                        <div class="col-md-3"><strong>Authority:</strong> ${item.authority_score ?? 'NA'}</div>
-                                        <div class="col-md-3"><strong>Spam Score:</strong> ${(item.spam_score > 0) ? item.spam_score + '%' : 'NA'}</div>
-                                        <div class="col-md-3"><strong>Total Keywords:</strong> ${(item.article_count > 0) ? item.article_count : 'NA'}</div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-3"><strong>Language:</strong> ${item.language ?? 'NA'}</div>
-                                        <div class="col-md-3"><strong>Link Validity:</strong> ${item.domain_life_validity ?? 'NA'}</div>
-                                        <div class="col-md-3">
-                                            <button class="btn btn-sm btn-outline-primary guide-btn" data-guide="${item.guidelines}">
-                                                Guidelines
-                                            </button>
+                if(marketplaceFilter == 0){
+                    items.forEach(item => {
+                        tableBody += `
+                        <tr>             
+                            <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
+                            <td>${item.da}</td>
+                            <td>${(item.ahref > 100) ? item.ahref : '<100'}</td>
+                            <td>${(item.semrush > 100) ? item.semrush : '<100'}</td>
+                            <td>${item.tat}</td>
+                            <td>${item.backlink_type}</td>
+                            <td>${item.guest_post_price > 0 ? '$' + item.guest_post_price : item.forbidden_category_guest_post_price > 0 ? '$' + item.forbidden_category_guest_post_price : '-' }</td>
+                            <td>
+                                ${item.linkinsertion_price > 0 ? '$' + item.linkinsertion_price : item.forbidden_category_linkinsertion_price > 0 ? '$' + item.forbidden_category_linkinsertion_price : '-' }
+                            </td>
+                            <td><button class="add-to-cart" data-id="${item.id}" data-website="${item.website_id}" data-host="${item.host_url}" data-da="${item.da}" data-tat="${item.tat}"
+                            data-ahref="${item.ahref}" data-semrush="${item.semrush}" data-guest="${item.guest_post_price}" data-link="${item.linkinsertion_price}">+Add</button></td>
+                            <td><button class="views"><i class="fas fa-chevron-down"></i></button></td>
+                        </tr>
+                        <tr class="details-row" style="display:none">
+                            <td colspan="10">
+                                <div class="p-3 bg-white border rounded shadow-sm">
+                                    <div class="container-fluid px-0">
+                                        <div class="row mb-2">
+                                            <div class="col-md-3"><strong>Domain Rating:</strong> ${item.domain_rating ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Authority:</strong> ${item.authority_score ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Spam Score:</strong> ${(item.spam_score > 0) ? item.spam_score + '%' : 'NA'}</div>
+                                            <div class="col-md-3"><strong>Total Keywords:</strong> ${(item.article_count > 0) ? item.article_count : 'NA'}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3"><strong>Language:</strong> ${item.language ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Link Validity:</strong> ${item.domain_life_validity ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Trust FLow:</strong> ${item.trust_flow ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Citation Flow:</strong> ${item.citation_flow ?? 'NA'}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <button class="btn btn-sm btn-outline-primary guide-btn" data-guide="${item.guidelines}">
+                                                    Guidelines
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div> 
-                        </td>
-                    </tr>`;
-                });
+                                </div> 
+                            </td>
+                        </tr>`;   
+                    });
+                }else if(marketplaceFilter == 1){
+                    items.forEach(item => {
+                        tableBody += `
+                        <tr>             
+                            <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
+                            <td>${item.da}</td>
+                            <td>${(item.ahref > 100) ? item.ahref : '<100'}</td>
+                            <td>${(item.semrush > 100) ? item.semrush : '<100'}</td>
+                            <td>${item.tat}</td>
+                            <td>${item.backlink_type}</td>
+                            <td>${item.forbidden_category_guest_post_price > 0 ? '$' + item.forbidden_category_guest_post_price : '-' }</td>
+                            <td>
+                                ${item.forbidden_category_linkinsertion_price > 0 ? '$' + item.forbidden_category_linkinsertion_price : '-' }
+                            </td>
+                            <td><button class="add-to-cart" data-id="${item.id}" data-website="${item.website_id}" data-host="${item.host_url}" data-da="${item.da}" data-tat="${item.tat}"
+                            data-ahref="${item.ahref}" data-semrush="${item.semrush}" data-guest="${item.guest_post_price}" data-link="${item.linkinsertion_price}">+Add</button></td>
+                            <td><button class="views"><i class="fas fa-chevron-down"></i></button></td>
+                        </tr>
+                        <tr class="details-row" style="display:none">
+                            <td colspan="10">
+                                <div class="p-3 bg-white border rounded shadow-sm">
+                                    <div class="container-fluid px-0">
+                                        <div class="row mb-2">
+                                            <div class="col-md-3"><strong>Domain Rating:</strong> ${item.domain_rating ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Authority:</strong> ${item.authority_score ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Spam Score:</strong> ${(item.spam_score > 0) ? item.spam_score + '%' : 'NA'}</div>
+                                            <div class="col-md-3"><strong>Total Keywords:</strong> ${(item.article_count > 0) ? item.article_count : 'NA'}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3"><strong>Language:</strong> ${item.language ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Link Validity:</strong> ${item.domain_life_validity ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Trust FLow:</strong> ${item.trust_flow ?? 'NA'}</div>
+                                            <div class="col-md-3"><strong>Citation Flow:</strong> ${item.citation_flow ?? 'NA'}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <button class="btn btn-sm btn-outline-primary guide-btn" data-guide="${item.guidelines}">
+                                                    Guidelines
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </td>
+                        </tr>`;   
+                    });
+                }
                 $('#myTable tbody').html(tableBody);
                 $('.views').each(function () {
                     $(this).trigger('click');

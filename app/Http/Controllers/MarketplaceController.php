@@ -11,6 +11,7 @@ class MarketplaceController extends Controller
 {
 
     public function fetchMarketplaceData(Request $request){
+        
         $search = $request->search;
         $min_da = $request->min_da_filter;
         $max_da = $request->max_da_filter;
@@ -32,54 +33,60 @@ class MarketplaceController extends Controller
         $sortColumn = $request->input('sort_column', 'da'); 
         $sortOrder = $request->input('sort_order', 'desc');
         $link_type_filter = $request->link_type_filter;
+        $min_spam_score = $request->min_spam_score;
+        $max_spam_score = $request->max_spam_score;
+        $min_trust_flow = $request->min_trust_flow;
+        $max_trust_flow = $request->max_trust_flow;
+        $min_citation_flow = $request->min_citation_flow;
+        $max_citation_flow = $request->max_citation_flow;
         $query = Website::query();
         $api_category = is_array($category) ? implode(',', $category) : $category;
-        //dd($category);
-        if(is_array($language)){
-            $language = implode(',', $language);
-        }  
-        if(!empty($min_da)){
-            $query->where('da', '>=', $min_da);
-        }
-        if(!empty($max_da)){
-            $query->where('da', '<=', $max_da);
-        }
-        if(!empty($min_price)){
-            $query->where('guest_post_price', '>=', $min_price);
-        }
-        if(!empty($max_price)){
-            $query->where('guest_post_price', '<=', $max_price);
-        }
-        if(!empty($category)){
-            $query->where('normal_category', $category);
-        }
-        if(!empty($min_dr)){
-            $query->where('dr', '>=', $min_dr);
-        }
-        if(!empty($max_dr)){
-            $query->where('dr', '<=', $max_dr);
-        }
-        if(!empty($country)){
-            $query->where('country', '=', $country);
-        }
-        if(!empty($min_ahref)){
-            $query->where('ahref', '>=', $min_ahref);
-        }
-        if(!empty($max_ahref)){
-            $query->where('ahref', '<=', $max_ahref);
-        }
-        if(!empty($min_semrush)){
-            $query->where('semrush', '>=', $min_semrush);
-        }
-        if(!empty($max_semrush)){
-            $query->where('semrush', '<=', $max_semrush);
-        }
-        if(!empty($tat)){
-            $query->where('tat', $tat);
-        }
-        if(!empty($language)){
-            $query->where('language', $language);
-        }
+        //dd($api_category);
+        // if(is_array($language)){
+        //     $language = implode(',', $language);
+        // }  
+        // if(!empty($min_da)){
+        //     $query->where('da', '>=', $min_da);
+        // }
+        // if(!empty($max_da)){
+        //     $query->where('da', '<=', $max_da);
+        // }
+        // if(!empty($min_price)){
+        //     $query->where('guest_post_price', '>=', $min_price);
+        // }
+        // if(!empty($max_price)){
+        //     $query->where('guest_post_price', '<=', $max_price);
+        // }
+        // if(!empty($category)){
+        //     $query->where('normal_category', $category);
+        // }
+        // if(!empty($min_dr)){
+        //     $query->where('dr', '>=', $min_dr);
+        // }
+        // if(!empty($max_dr)){
+        //     $query->where('dr', '<=', $max_dr);
+        // }
+        // if(!empty($country)){
+        //     $query->where('country', '=', $country);
+        // }
+        // if(!empty($min_ahref)){
+        //     $query->where('ahref', '>=', $min_ahref);
+        // }
+        // if(!empty($max_ahref)){
+        //     $query->where('ahref', '<=', $max_ahref);
+        // }
+        // if(!empty($min_semrush)){
+        //     $query->where('semrush', '>=', $min_semrush);
+        // }
+        // if(!empty($max_semrush)){
+        //     $query->where('semrush', '<=', $max_semrush);
+        // }
+        // if(!empty($tat)){
+        //     $query->where('tat', $tat);
+        // }
+        // if(!empty($language)){
+        //     $query->where('language', $language);
+        // }
         $start = $request->get('page', 1);
         $offset = $request->get('offset');
         $page = $start;
@@ -91,9 +98,15 @@ class MarketplaceController extends Controller
             'search' => $search,
             'min_da_filter' => $min_da,
             'max_da_filter' => $max_da,
-            'category_filter' => $api_category,
+            'category_filter' => $category,
             'min_price_filter' => $min_price,
             'max_price_filter' => $max_price,
+            'min_spam_score_filter' => $min_spam_score,
+            'max_spam_score_filter' => $max_spam_score,
+            'min_trust_flow_filter' => $min_trust_flow,
+            'max_trust_flow_filter' => $max_trust_flow,
+            'min_citation_flow_filter' => $min_citation_flow,
+            'max_citation_flow_filter' => $max_citation_flow,
             'country_filter' => $country,
             'language_filter' => $language,
             'min_ahref_filter' => $min_ahref,
@@ -101,7 +114,7 @@ class MarketplaceController extends Controller
             'min_semrush_filter' => $min_semrush,
             'max_semrush_filter' => $max_semrush,
             'min_dr' => $min_dr,
-            'max-dr' => $max_dr,
+            'max_dr' => $max_dr,
             'tat_filter' => $tat,
             'sort_by' => $sortColumn,
             'sort_direction' => $sortOrder,
