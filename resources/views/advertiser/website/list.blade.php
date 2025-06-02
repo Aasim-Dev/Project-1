@@ -24,7 +24,12 @@
         padding: 0;
         margin: 0;
     }
-
+    .truncate-cell {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     .custom-ul .row {
         display: flex;
         flex-wrap: wrap;
@@ -620,7 +625,7 @@
                     items.forEach(item => {
                         tableBody += `
                         <tr>             
-                            <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
+                            <td class="truncate-cell"><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
                             <td>${item.da}</td>
                             <td>${(item.ahref > 100) ? item.ahref : '<100'}</td>
                             <td>${(item.semrush > 100) ? item.semrush : '<100'}</td>
