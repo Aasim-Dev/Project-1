@@ -514,9 +514,9 @@
                 $('#previous').attr('data-previous', previous);
                 $('#next').attr('data-next', next);
                 fetchWebsites();
-                // $("html, body").animate({
-                //     scrollTop: 0
-                // }, "slow");
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
             });
             $('#previous').on('click', function(){
                 var previous = $('#previous').attr('data-previous');
@@ -533,9 +533,9 @@
                 page = next;
                 offset = previous;
                 fetchWebsites();
-                // $("html, body").animate({
-                //     scrollTop: 0
-                // }, "slow");
+                $("html, body").animate({
+                    scrollTop: 0
+                }, "slow");
             });
             $('input[name="marketplace_type_filter"]').on('change', function() {
                 if ($(this).is(':checked')) {
@@ -666,7 +666,7 @@
                     items.forEach(item => {
                         tableBody += `
                         <tr>             
-                            <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.category}</small></td>
+                            <td><a href="${item.website_url}">${item.host_url}</a><br><small>Category: ${item.forbiddencategories}</small></td>
                             <td>${item.da}</td>
                             <td>${(item.ahref > 100) ? item.ahref : '<100'}</td>
                             <td>${(item.semrush > 100) ? item.semrush : '<100'}</td>
@@ -677,7 +677,7 @@
                                 ${item.forbidden_category_linkinsertion_price > 0 ? '$' + item.forbidden_category_linkinsertion_price : '-' }
                             </td>
                             <td><button class="add-to-cart" data-id="${item.id}" data-website="${item.website_id}" data-host="${item.host_url}" data-da="${item.da}" data-tat="${item.tat}"
-                            data-ahref="${item.ahref}" data-semrush="${item.semrush}" data-guest="${item.guest_post_price}" data-link="${item.linkinsertion_price}">+Add</button></td>
+                            data-ahref="${item.ahref}" data-semrush="${item.semrush}" data-guest="${item.guest_post_price ?? item.forbidden_category_guest_post_price}" data-link="${item.linkinsertion_price}">+Add</button></td>
                             <td><button class="views"><i class="fas fa-chevron-down"></i></button></td>
                         </tr>
                         <tr class="details-row" style="display:none">
@@ -729,41 +729,41 @@
 
                     updateCartCount();
                 });
-                $(document).on('click', '.add-to-cart', function () {
-                    const button = $(this);
-                    const websiteId = button.data('id').toString();
-                    var website_id = button.data('website');
-                    var hostUrl = button.data('host');
-                    var da = button.data('da');
-                    var tat = button.data('tat');
-                    var semrush = button.data('semrush');
-                    var gp_price = button.data('guest');
-                    var li_price = button.data('link'); 
-                    //alert('add');
-                    $.ajax({
-                        url: "{{route('cart.toggle')}}",
-                        type: "POST",
-                        data: {
-                            website_id: website_id,
-                            host_url: hostUrl,
-                            da: da,
-                            tat: tat,
-                            semrush: semrush,
-                            guest_post_price: gp_price,
-                            linkinsertion_price: li_price,
-                            _token: '{{csrf_token()}}',
-                        },
-                        success: function(response){
-                            if (response.status === 'success') {
-                                button.text("Remove").css("background-color", "#e74c3c");
-                            } else if (response.status === 'removed') {
-                                button.text("+Add").css("background-color", "#2ecc71");
-                            }
-                            updateCartCount(); // Update the count on toggle
-                        },
-                    });
-                });
             }
+            $(document).on('click', '.add-to-cart', function () {
+                const button = $(this);
+                const websiteId = button.data('id').toString();
+                var website_id = button.data('website');
+                var hostUrl = button.data('host');
+                var da = button.data('da');
+                var tat = button.data('tat');
+                var semrush = button.data('semrush');
+                var gp_price = button.data('guest');
+                var li_price = button.data('link'); 
+                //alert('add');
+                $.ajax({
+                    url: "{{route('cart.toggle')}}",
+                    type: "POST",
+                    data: {
+                        website_id: website_id,
+                        host_url: hostUrl,
+                        da: da,
+                        tat: tat,
+                        semrush: semrush,
+                        guest_post_price: gp_price,
+                        linkinsertion_price: li_price,
+                        _token: '{{csrf_token()}}',
+                    },
+                    success: function(response){
+                        if (response.status === 'success') {
+                            button.text("Remove").addClass('btn-danger').removeClass('btn-success');
+                        } else if (response.status === 'removed') {
+                            button.text("+Add").addClass('btn-success').removeClass('btn-danger');
+                        }
+                        updateCartCount(); // Update the count on toggle
+                    },
+                });
+            });
             $(document).on('click', '.guide-btn', function(){
                 var id = $(this).data('id');
                 var guide = $(this).data('guide');
@@ -798,56 +798,20 @@
                 page = 1;
                 fetchWebsites();
             });
-                $.get('{{ route("website.cart") }}', function (response) {
-                    const cartItems = response.cart.map(id => id.toString());
+                // $.get('{{ route("website.cart") }}', function (response) {
+                //     const cartItems = response.cart.map(id => id.toString());
 
-                    $('.add-to-cart').each(function () {
-                        const websiteId = $(this).data('id').toString();
+                //     $('.add-to-cart').each(function () {
+                //         const websiteId = $(this).data('id').toString();
 
-                        if (cartItems.includes(websiteId)) {
-                            $(this).text("Remove").css("background-color", "#e74c3c");
-                        }
-                    });
-
-                    updateCartCount();
-                });
-
-                // $(document).on('click', '.add-to-cart', function () {
-                //     const button = $(this);
-                //     const websiteId = button.data('id').toString();
-                //     var website_id = button.data('website');
-                //     var hostUrl = button.data('host');
-                //     var da = button.data('da');
-                //     var tat = button.data('tat');
-                //     var semrush = button.data('semrush');
-                //     var gp_price = button.data('guest');
-                //     var li_price = button.data('link'); 
-                //     //alert('add');
-                //     $.ajax({
-                //         url: "{{route('cart.toggle')}}",
-                //         type: "POST",
-                //         data: {
-                //             website_id: website_id,
-                //             host_url: hostUrl,
-                //             da: da,
-                //             tat: tat,
-                //             semrush: semrush,
-                //             guest_post_price: gp_price,
-                //             linkinsertion_price: li_price,
-                //             _token: '{{csrf_token()}}',
-                //         },
-                //         success: function(response){
-                //             if (response.status === 'success') {
-                //                 button.text("Remove").css("background-color", "#e74c3c");
-                //             } else if (response.status === 'removed') {
-                //                 button.text("+Add").css("background-color", "#2ecc71");
-                //             }
-                //             updateCartCount(); // Update the count on toggle
-                //         },
+                //         if (cartItems.includes(websiteId)) {
+                //             $(this).text("Remove").css("background-color", "#e74c3c");
+                //         }
                 //     });
+
+                //     updateCartCount();
                 // });
 
-            // STEP 3: Count updater function
             function updateCartCount() {
                 $.ajax({
                     url: "{{route('cart.count')}}",

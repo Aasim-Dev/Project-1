@@ -292,6 +292,10 @@ class AdvertiserController extends Controller
             $totalBalance = $totalBalance ?? 0;
         }
         $cartItems = Cart::with('website')->where('advertiser_id', $advertiserId)->get();
+        $response = Http::withToken('B2tr8yxCoeN2sIASSfZq3bhdM4rpEP')->post('https://lp-latest.elsnerdev.com/api/cart-listing', [
+            'client_token' => $user->client_token,
+        ]);
+        //dd($response->json());
         if($cartItems->isEmpty()){
             return view('advertiser.website.list', compact('websites', 'totalBalance'))->with('error', 'No Cart Items Found');
         }else{
